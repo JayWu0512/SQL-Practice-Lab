@@ -125,12 +125,14 @@
   <p>Choose any topic to jump directly to its full lesson. You can also scroll through the entire tutorial normally.</p>
   <details id="db-settings">
     <summary>Connect your Supabase database</summary>
-    <p>Paste the Session pooler URL (port 5432) exactly as Supabase copied it, including [YOUR-PASSWORD]. The password remains in this local server process and is not saved.</p>
-    <label for="connection-url">Session pooler URL</label>
-    <input id="connection-url" autocomplete="off" placeholder="postgresql://postgres.PROJECT_REF:[YOUR-PASSWORD]@...:5432/postgres">
-    <label for="database-password">Database password</label>
-    <input id="database-password" type="password" autocomplete="current-password" placeholder="Enter locally">
-    <button id="connect-db" class="toggle" type="button">Test connection</button>
+    <p id="db-intro">Paste the Session pooler URL (port 5432) exactly as Supabase copied it, including [YOUR-PASSWORD]. The password remains in this local server process and is not saved.</p>
+    <div id="local-connection-fields">
+      <label for="connection-url">Session pooler URL</label>
+      <input id="connection-url" autocomplete="off" placeholder="postgresql://postgres.PROJECT_REF:[YOUR-PASSWORD]@...:5432/postgres">
+      <label for="database-password">Database password</label>
+      <input id="database-password" type="password" autocomplete="current-password" placeholder="Enter locally">
+      <button id="connect-db" class="toggle" type="button">Test connection</button>
+    </div>
     <div id="db-status">Not connected.</div>
   </details>
   <button data-slide="0">Start / Roadmap</button>
@@ -911,6 +913,10 @@ LIMIT 5;</code></pre>
     code.parentElement.insertAdjacentElement('afterend', resultBox);
   });
   var dbStatus = document.getElementById('db-status');
+  var dbSettings = document.getElementById('db-settings');
+  var dbIntro = document.getElementById('db-intro');
+  var localConnectionFields = document.getElementById('local-connection-fields');
+  var queriesAvailable = false;
   async function api(path, payload) {
     var response = await fetch(path, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     var data = await response.json();
@@ -920,7 +926,20 @@ LIMIT 5;</code></pre>
   fetch('/api/health')
     .then(function(response) { return response.json(); })
     .then(function(data) {
-      dbStatus.textContent = 'Local server ' + data.version + ' is ready. Not connected.';
+      if (data.mode === 'vercel') {
+        localConnectionFields.hidden = true;
+        dbSettings.open = true;
+        dbSettings.querySelector('summary').textContent = 'Course Supabase database';
+        dbIntro.textContent = data.enabled
+          ? 'The course database is ready. Run read-only SQL from any lesson or Mini-Test.'
+          : 'The course SQL runner is currently closed.';
+        queriesAvailable = data.enabled;
+        dbStatus.textContent = data.enabled
+          ? 'Connected to the course database.'
+          : 'Queries are unavailable until the instructor opens the runner.';
+      } else {
+        dbStatus.textContent = 'Local server ' + data.version + ' is ready. Not connected.';
+      }
     })
     .catch(function() {
       dbStatus.textContent = 'Local server not found. Open this site through Open_SQL_Tutorial_Mac.command or Open_SQL_Tutorial_Windows.bat.';
@@ -933,6 +952,7 @@ LIMIT 5;</code></pre>
         password: document.getElementById('database-password').value
       });
       document.getElementById('database-password').value = '';
+      queriesAvailable = true;
       dbStatus.textContent = data.message + ' You can now run SQL from any code block.';
     } catch (error) { dbStatus.textContent = error.message; }
   });
@@ -952,6 +972,10 @@ LIMIT 5;</code></pre>
   }
   async function executeQuery(sql, resultBox) {
     resultBox.hidden = false;
+    if (!queriesAvailable) {
+      resultBox.textContent = 'Connect to a database before running SQL.';
+      return null;
+    }
     resultBox.textContent = 'Running query…';
     try {
       var data = await api('/api/query', { sql: sql });

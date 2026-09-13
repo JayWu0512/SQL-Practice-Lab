@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/", "destination": "/sql_tutorial.html" }
+  ],
+  "functions": {
+    "api/*.py": {
+      "maxDuration": 10,
+      "excludeFiles": "{assets/**,data/**,sql_tutorial.html,sql_tutorial_server.py,Open_SQL_Tutorial_Mac.command,Open_SQL_Tutorial_Windows.bat}"
+    }
+  }
+}

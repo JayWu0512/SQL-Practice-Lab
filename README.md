@@ -36,6 +36,16 @@ Leave Supabase's `[YOUR-PASSWORD]` placeholder in the copied URL; enter the real
 
 For a class fallback connection, ask a TA for the password and use the course URL they provide. Never put a password in this repository or a shared document.
 
+### Course fallback connection
+
+If you have trouble connecting to Supabase, use the course connection below and ask a TA for the database password:
+
+```text
+postgresql://postgres.zwvlipptpuwndregtgzv:[YOUR-PASSWORD]@aws-0-ca-central-1.pooler.supabase.com:5432/postgres
+```
+
+Paste the URL unchanged into **Session pooler URL**, then enter the password from the TA in the separate **Database password** field.
+
 ## Use the lessons
 
 - Use the sidebar to navigate Fundamentals, Advanced SQL, Mini-Test, and Appendix.

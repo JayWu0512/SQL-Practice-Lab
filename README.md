@@ -4,8 +4,6 @@ Interactive SQL lessons using the Olist Brazilian E-Commerce dataset and Supabas
 
 First time here? Follow [Supabase setup](SUPABASE_SETUP_README.md) to create a database and import the data.
 
-To host one shared, read-only course database on Vercel, follow [Vercel deployment](VERCEL_DEPLOYMENT.md).
-
 ## Course website
 
 Use the hosted [SQL Practice Lab](https://sql-practice-lab-ids706.vercel.app/) to work through the lessons and run read-only SQL against the course database. The shared database-query feature will be available through mid-October.

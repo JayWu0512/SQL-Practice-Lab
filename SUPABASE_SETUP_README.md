@@ -33,13 +33,6 @@ Do not manually assemble the host. For this project, use Session pooler—not th
 | `orders.csv` | `orders` | `order_id` | 99,441 |
 | `order_items.csv` | `order_items` | `order_id`, + `order_item_id` | 112,650 |
 
-For `order_items`, clear any automatically selected single-column key. After import, open **SQL Editor** → **New query** and run this to create the composite primary key (`order_id` + `order_item_id`):
-
-```sql
-ALTER TABLE order_items
-ADD CONSTRAINT order_items_pkey PRIMARY KEY (order_id, order_item_id);
-```
-
 Check the row counts after import. You can inspect tables in Table Editor or run queries in the SQL Editor.
 
 ## If something fails

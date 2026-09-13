@@ -10,6 +10,14 @@ Students can:
 - Write their own SQL below each Mini-Test question and inspect the result.
 - Copy table-management and CRUD examples from the Appendix into their own Supabase SQL Editor.
 
+## Setup and Documentation
+
+For first-time setup, project creation, and Supabase database configuration, follow the dedicated guide:
+
+- [SUPABASE_SETUP_README.md](SUPABASE_SETUP_README.md) — create your Supabase project, copy the correct Session pooler URL, and import the included Olist CSV data.
+
+This README covers the day-to-day usage of the SQL Practice Lab. The setup guide is the recommended path before the first launch.
+
 ## Project Files
 
 | File | Purpose |
@@ -17,6 +25,7 @@ Students can:
 | requirements.txt | Python dependencies for the website |
 | sql_tutorial.html | Website frontend |
 | sql_tutorial_server.py | Local read-only Supabase API server |
+| SUPABASE_SETUP_README.md | Step-by-step Supabase project creation and CSV import instructions |
 | Open_SQL_Tutorial_Mac.command | One-click macOS launcher |
 | Open_SQL_Tutorial_Windows.bat | One-click Windows launcher |
 

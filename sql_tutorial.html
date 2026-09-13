@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Tutorial with Supabase</title>
+  <meta name="theme-color" content="#7A6652">
+  <link rel="icon" type="image/png" sizes="any" href="assets/sql-tutorial-icon.png?v=2">
+  <link rel="shortcut icon" type="image/png" href="assets/sql-tutorial-icon.png?v=2">
+  <link rel="apple-touch-icon" href="assets/sql-tutorial-icon.png?v=2">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github.min.css">
+  <style>
+    :root { --mint:#7A6652; --ink:#FAF7F0; --panel:#EFE7DA; --muted:#38332E; --gold:#B7794A; --blue:#A8947C; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; overflow-y:auto; background:var(--ink); color:var(--muted); font-family:Inter, ui-sans-serif, system-ui, sans-serif; }
+    #content { margin-left:270px; width:calc(100% - 270px); box-sizing:border-box; padding:52px clamp(24px, 5vw, 92px) 90px; }
+    #content > section { max-width:1120px; margin:0 auto 46px; padding:34px; background:rgba(255,253,248,.58); border:1px solid #ded1c0; border-radius:18px; scroll-margin-top:24px; }
+    #content h1, #content h2, #content h3 { color: var(--mint); text-transform: none; letter-spacing: -.03em; }
+    #content h1 { font-size: 3rem; } #content h2 { font-size: 2rem; } #content h3 { font-size: 1.35rem; }
+    #content p, #content li { line-height: 1.6; } #content ul { margin-top: .3em; }
+    .eyebrow { color:var(--gold); font-size:.58em; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .part { border: 3px solid var(--mint); padding: 1.2em; border-radius: .6em; background: radial-gradient(circle at top right,#fffdf8,transparent 42%), var(--panel); }
+    .case { text-align:left; background:var(--panel); border-left:10px solid var(--gold); padding:.65em .85em; border-radius:.25em; margin:.55em 0; font-size:.75em; }
+    .case strong { color:var(--gold); }
+    .why, .result, .explain { text-align:left; background:#fffdf8; border-radius:.35em; padding:.55em .8em; margin:.45em 0; font-size:.7em; }
+    .result { border:1px solid var(--mint); } .explain { border:1px solid var(--blue); }
+    .result strong, .explain strong { color:var(--mint); }
+    .visual-hint { display:flex; align-items:stretch; gap:.45em; margin-top:.7em; overflow-x:auto; padding-bottom:.15em; }
+    .visual-card { flex:1 0 125px; min-width:125px; padding:.55em .65em; border:1px solid #d8cab8; border-radius:8px; background:var(--panel); }
+    .visual-card strong { display:block; margin-bottom:.22em; color:var(--mint); }
+    .visual-arrow { flex:0 0 auto; align-self:center; color:var(--gold); font-size:1.35em; font-weight:800; }
+    .visual-table { display:grid; grid-template-columns:repeat(2, minmax(95px, 1fr)); gap:1px; margin-top:.65em; border:1px solid #d8cab8; border-radius:7px; overflow:hidden; background:#d8cab8; }
+    .visual-table span { padding:.4em .55em; background:#fffdf8; }
+    .visual-table .head { background:var(--mint); color:var(--ink); font-weight:800; }
+    .visual-table .keep { background:#e2eee2; color:#315b31; font-weight:800; }
+    .visual-table .drop { background:#f7e7dc; color:#7b4b2c; text-decoration:line-through; }
+    .visual-pill { display:inline-block; margin:.15em .2em .05em 0; padding:.15em .45em; border-radius:99px; background:#fffdf8; border:1px solid var(--blue); font-weight:700; }
+    .resource-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:.75em; margin:.85em 0; }
+    .resource-card { padding:.9em; border:1px solid var(--blue); border-radius:10px; background:#fffdf8; }
+    .resource-card h3 { margin:.05em 0 .35em; font-size:1.05rem; }
+    .resource-card p { margin:.25em 0 .65em; font-size:.86rem; }
+    .resource-card a { color:var(--mint); font-weight:800; }
+    .recommended { border:2px solid var(--gold); }
+    .recommended::before { content:"RECOMMENDED"; display:inline-block; padding:.18em .45em; border-radius:99px; background:var(--gold); color:var(--ink); font:800 .64rem/1 Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing:.08em; }
+    .code-pair { display:grid; grid-template-columns:1fr 1fr; gap:.75em; margin:.65em 0; }
+    .code-pair > div { min-width:0; padding:.8em; border:1px solid var(--blue); border-radius:10px; background:#fffdf8; }
+    .code-pair h4 { margin:.05em 0 .45em; color:var(--mint); }
+    #content pre.code-example::before { content:"EXAMPLE"; background:var(--blue); }
+    #content pre.sql-example::before { content:"SQL EXAMPLE"; background:var(--mint); }
+    #content pre.pandas-example::before { content:"PANDAS EXAMPLE"; background:var(--blue); }
+    #content pre { width:100%; box-sizing:border-box; box-shadow:none; font-size:.88rem; margin:.9em 0; }
+    #content pre:not(.mermaid) { position:relative; overflow:hidden; border:1px solid #d8cab8; border-radius:12px; background:#fffdf8; box-shadow:0 7px 20px #7a665214; }
+    #content pre:not(.mermaid)::before { content:"SQL QUERY"; display:block; padding:9px 14px; background:var(--mint); color:#FAF7F0; font:800 .7rem/1 Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing:.12em; }
+    #content pre.sql-reference::before { content:"REFERENCE SQL — COPY ONLY"; background:var(--blue); }
+    #content pre code { display:block; max-height: 520px; overflow:auto; padding:1.15em 1.25em; background:#fffdf8; color:var(--muted); font:1.03rem/1.65 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; tab-size:4; }
+    #content pre code.hljs { background:#fffdf8; color:var(--muted); }
+    #content .hljs-keyword, #content .hljs-selector-tag { color:#B7794A; font-weight:700; }
+    #content .hljs-string, #content .hljs-attr { color:#7A6652; }
+    #content .hljs-number, #content .hljs-literal, #content .hljs-built_in { color:#A06B46; }
+    #content .copy-code { position:absolute; right:11px; top:6px; border:1px solid #EFE7DA; border-radius:6px; padding:5px 9px; background:#FAF7F0; color:var(--mint); font:700 .68rem/1 Inter, ui-sans-serif, system-ui, sans-serif; cursor:pointer; }
+    #content .copy-code:hover { background:var(--panel); }
+    .buttons { display:flex; gap:.35em; flex-wrap:wrap; justify-content:center; margin:.45em 0; }
+    button.toggle { background:var(--mint); color:#fffdf8; border:0; border-radius:999px; padding:.45em .8em; font-size:.57em; font-weight:800; cursor:pointer; }
+    button.toggle:hover { background:var(--gold); transform:translateY(-2px); }
+    [hidden] { display:none !important; }
+    .compare { display:grid; grid-template-columns:1fr 1fr; gap:.65em; text-align:left; font-size:.68em; }
+    .compare > div { background:var(--panel); padding:.6em; border-radius:.35em; }
+    .tag { display:inline-block; padding:.15em .5em; border-radius:99px; font-size:.6em; background:#ded1c0; color:var(--muted); }
+    .mermaid { background:#fffdf8; border-radius:.35em; padding:.35em; margin:.3em auto; max-height:390px; }
+    .roadmap .mermaid { margin:.7em 0 0; padding:.75em .35em; }
+    .mini { text-align:left; background:var(--panel); border:1px solid var(--blue); padding:.75em; border-radius:.4em; font-size:.75em; }
+    .source-note { margin:.55em 0 0; color:var(--muted); font-size:.82em; line-height:1.45; }
+    .source-note a { color:var(--mint); font-weight:700; }
+    .answer { border-top:2px dashed var(--mint); margin-top:.6em; padding-top:.5em; }
+    table { font-size:.62em; margin:auto; } th { color:var(--mint); } td,th { padding:.35em .55em !important; }
+    .footer-note { font-size:.5em; color:var(--muted); }
+    #db-settings { margin:8px 4px 14px; padding:9px; border:1px solid var(--blue); border-radius:8px; background:#fffdf8; }
+    #db-settings summary { cursor:pointer; color:var(--mint); font-size:13px; font-weight:800; }
+    #db-settings p, #db-settings label { font-size:11px; line-height:1.35; margin:8px 0 4px; }
+    #db-settings label { display:block; color:var(--muted); }
+    #db-settings input { box-sizing:border-box; width:100%; background:var(--ink); color:var(--muted); border:1px solid var(--blue); border-radius:4px; padding:7px; font:11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    #db-settings .toggle { width:100%; margin-top:8px; font-size:11px; }
+    #db-status { font-size:11px; line-height:1.35; margin-top:8px; color:var(--gold); }
+    #content .run-code { position:absolute; right:96px; top:6px; border:1px solid #EFE7DA; border-radius:6px; padding:5px 9px; background:var(--gold); color:#FAF7F0; font:700 .68rem/1 Inter, ui-sans-serif, system-ui, sans-serif; cursor:pointer; }
+    #content .run-code:hover { background:var(--mint); }
+    .inline-query-result { overflow:auto; max-height:330px; margin:.5em 0 1em; padding:.8em; border:1px solid var(--blue); border-radius:10px; background:#fffdf8; font-size:.82rem; }
+    .inline-query-result table { width:100%; border-collapse:collapse; font-size:.9em; }
+    .inline-query-result td, .inline-query-result th { border:1px solid var(--blue); padding:.35em .5em; white-space:nowrap; text-align:left; }
+    .practice-runner { margin:.8em 0; padding:.9em; border:2px dashed var(--blue); border-radius:12px; background:#fffdf8; text-align:left; }
+    .practice-runner h3 { margin:0 0 .35em; color:var(--mint); font-size:1rem; }
+    .practice-runner p { margin:.25em 0 .7em; font-size:.82rem; }
+    .practice-sql { box-sizing:border-box; width:100%; min-height:150px; resize:none; overflow:hidden; padding:12px; border:1px solid var(--blue); border-radius:8px; background:var(--ink); color:var(--muted); font: .92rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .practice-runner .buttons { justify-content:flex-start; margin-bottom:0; }
+    .lesson-practice { margin-top:1em; }
+    .answer-status { margin:.7em 0 0; padding:.65em .8em; border-radius:8px; font-size:.84rem; font-weight:700; }
+    .answer-status.checking { background:var(--panel); color:var(--muted); }
+    .answer-status.correct { background:#e2eee2; border:1px solid #6b936b; color:#315b31; }
+    .answer-status.incorrect { background:#f7e7dc; border:1px solid var(--gold); color:#7b4b2c; }
+    #sidebar { position:fixed; z-index:45; inset:0 auto 0 0; width:270px; overflow-y:auto; background:var(--panel); border-right:1px solid var(--blue); padding:18px 12px; box-sizing:border-box; }
+    #sidebar h2 { color:var(--mint); font-size:20px; margin:0 8px 6px; }
+    #sidebar .sidebar-brand { display:flex; align-items:center; gap:9px; margin:0 8px 6px; }
+    #sidebar .sidebar-brand img { width:34px; height:34px; object-fit:contain; }
+    #sidebar .sidebar-brand h2 { margin:0; }
+    #sidebar p { color:var(--muted); font-size:11px; line-height:1.4; margin:0 8px 14px; }
+    #sidebar .nav-part { color:var(--gold); font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; margin:18px 8px 6px; }
+    #sidebar button { display:block; width:100%; border:0; border-left:3px solid transparent; border-radius:5px; padding:8px 10px; background:transparent; color:var(--muted); text-align:left; font-size:13px; cursor:pointer; }
+    #sidebar button:hover { background:#e3d8ca; }
+    #sidebar button.active { background:#ded1c0; border-left-color:var(--gold); color:var(--mint); font-weight:800; }
+    #sidebar-toggle { display:none; position:fixed; z-index:60; left:12px; top:12px; }
+    @media (max-width: 900px) {
+      #sidebar { transform:translateX(-100%); transition:transform .2s ease; }
+      #sidebar.open { transform:translateX(0); box-shadow:10px 0 30px #0008; }
+      #sidebar-toggle { display:block; }
+      #content { margin-left:0; width:100%; padding:72px 16px 42px; }
+      #content > section { padding:22px; border-radius:14px; }
+      .resource-grid { grid-template-columns:1fr; }
+      .code-pair { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<button id="sidebar-toggle" class="toggle" type="button">Topics</button>
+<nav id="sidebar" aria-label="Tutorial topics">
+  <div class="sidebar-brand"><img src="assets/sql-tutorial-icon.png" alt=""><h2>SQL Tutorial</h2></div>
+  <p>Choose any topic to jump directly to its full lesson. You can also scroll through the entire tutorial normally.</p>
+  <details id="db-settings">
+    <summary>Connect your Supabase database</summary>
+    <p>Paste the Session pooler URL (port 5432) exactly as Supabase copied it, including [YOUR-PASSWORD]. The password remains in this local server process and is not saved.</p>
+    <label for="connection-url">Session pooler URL</label>
+    <input id="connection-url" autocomplete="off" placeholder="postgresql://postgres.PROJECT_REF:[YOUR-PASSWORD]@...:5432/postgres">
+    <label for="database-password">Database password</label>
+    <input id="database-password" type="password" autocomplete="current-password" placeholder="Enter locally">
+    <button id="connect-db" class="toggle" type="button">Test connection</button>
+    <div id="db-status">Not connected.</div>
+  </details>
+  <button data-slide="0">Start / Roadmap</button>
+  <div class="nav-part">Part 1 — Fundamentals</div>
+  <button data-slide="1">Part 1 overview</button>
+  <button data-slide="2">Olist schema</button>
+  <button data-slide="3">SELECT</button>
+  <button data-slide="4">WHERE</button>
+  <button data-slide="5">DISTINCT · ORDER BY · LIMIT</button>
+  <button data-slide="6">Aggregate functions</button>
+  <button data-slide="7">GROUP BY</button>
+  <button data-slide="8">JOIN</button>
+  <button data-slide="9">Multi-table JOIN</button>
+  <button data-slide="10">Subquery</button>
+  <button data-slide="11">Combining skills: revenue</button>
+  <button data-slide="12">Part 1 decision guide</button>
+  <div class="nav-part">Part 2 — Advanced SQL</div>
+  <button data-slide="13">Part 2 overview</button>
+  <button data-slide="14">CTE: the business problem</button>
+  <button data-slide="15">CTE: without CTE</button>
+  <button data-slide="16">CTE: with CTE</button>
+  <button data-slide="17">CASE WHEN</button>
+  <button data-slide="18">Window functions</button>
+  <button data-slide="19">Recursive CTE</button>
+  <button data-slide="20">Part 2 decision guide</button>
+  <div class="nav-part">Part 3 — Mini-Test</div>
+  <button data-slide="21">Mini-Test overview</button>
+  <button data-slide="22">Question 1: Basic</button>
+  <button data-slide="23">Question 2: JOIN</button>
+  <button data-slide="24">Question 3: Uber transaction</button>
+  <button data-slide="25">Question 4: Apple monthly orders</button>
+  <div class="nav-part">Appendix</div>
+  <button data-slide="26">Appendix: Table management</button>
+  <button data-slide="27">Appendix: Safe CRUD practice</button>
+  <div class="nav-part">Next</div>
+  <button data-slide="28">What’s next: Text-to-SQL</button>
+  <button data-slide="29">Resources & practice</button>
+</nav>
+<main id="content">
+
+  <section>
+    <p class="eyebrow">IDS 706</p>
+    <h1>SQL Tutorial</h1>
+    <p>Learn SQL as a way to solve business questions—not as a list of commands to memorize.</p>
+    <div class="fragment case roadmap">
+      <strong>Today’s roadmap</strong>
+      <pre class="mermaid">flowchart LR
+        part_one["Part 1: SQL Fundamentals"] --> part_two["Part 2: Advanced SQL"]
+        part_two --> part_three["Part 3: Mini-Test"]
+        part_three --> appendix["Appendix: Table Management"]</pre>
+    </div>
+    <p class="footer-note">Use the sidebar to jump to a topic, or scroll through the complete tutorial. Use the buttons to reveal original SQL, explanations, and expected result shapes.</p>
+  </section>
+
+  <section>
+    <div class="part">
+      <p class="eyebrow">Part 1</p>
+      <h1>SQL Fundamentals</h1>
+      <p>Retrieve, filter, summarize, and combine data.</p>
+      <p class="fragment">Start with: <strong>What problem am I trying to solve?</strong></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Olist schema at a glance</h2>
+    <pre class="mermaid">flowchart LR
+      customers_table["customers"] -->|customer_id| orders_table["orders"]
+      orders_table -->|order_id| order_items_table["order_items"]
+      order_items_table -->|product_id| products_table["products"]</pre>
+    <p class="footer-note">Relationship keys: customers.customer_id → orders.customer_id; orders.order_id → order_items.order_id; order_items.product_id → products.product_id.</p>
+    <p class="fragment">Different facts live in different tables. Later, JOIN reconnects them for a question.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">SELECT</p><h2>Choose the information you need</h2>
+    <div class="case"><strong>Scenario:</strong> A regional marketing analyst is preparing a small address-targeting sample.<br><br><strong>Task:</strong> Produce a 20-row customer-location list. Each row must contain exactly customer_id, customer_city, and customer_state.</div>
+    <div class="why fragment"><strong>What is missing without SELECT?</strong><br>SELECT * returns every column. It is useful for quick exploration, but a final report should show only the fields the analyst needs.</div>
+    <div class="buttons"><button class="toggle" data-target="select-sql">Show SQL</button><button class="toggle" data-target="select-star">Show original quick exploration</button><button class="toggle" data-target="select-explain">Explain</button><button class="toggle" data-target="select-result">Show result shape</button></div>
+    <pre id="select-sql" hidden><code class="language-sql">SELECT
+    customer_id,
+    customer_city,
+    customer_state
+FROM customers
+LIMIT 20;</code></pre>
+    <pre id="select-star" hidden><code class="language-sql">SELECT *
+FROM customers
+LIMIT 10;</code></pre>
+    <div id="select-explain" hidden class="explain"><strong>What SQL does:</strong> chooses three columns from customers and returns at most 20 rows.
+      <div class="visual-hint" aria-label="SELECT keeps only needed columns"><div class="visual-card"><strong>customers</strong>customer_id<br>customer_city<br>customer_state<br>zip_code_prefix</div><div class="visual-arrow">→</div><div class="visual-card"><strong>SELECT output</strong>customer_id<br>customer_city<br>customer_state</div></div>
+    </div>
+    <div id="select-result" hidden class="result"><strong>Expected columns:</strong> customer_id | customer_city | customer_state<br>Run the original query against Supabase to see the actual 20 rows.</div>
+  </section>
+
+  <section>
+    <p class="eyebrow">WHERE</p><h2>Choose the rows you need</h2>
+    <div class="case"><strong>Scenario:</strong> The São Paulo regional manager wants to review customers served by that state only.<br><br><strong>Task:</strong> Show up to 20 customers whose state is São Paulo (SP). No other states should appear.</div>
+    <div class="why fragment"><strong>Without WHERE:</strong> the report includes customers from every state, so it cannot answer the manager’s regional question.</div>
+    <div class="buttons"><button class="toggle" data-target="where-sql">Show SQL</button><button class="toggle" data-target="where-and">Show original AND example</button><button class="toggle" data-target="where-explain">Explain</button><button class="toggle" data-target="where-result">Show result shape</button></div>
+    <pre id="where-sql" hidden><code class="language-sql">SELECT
+    customer_id,
+    customer_city,
+    customer_state
+FROM customers
+WHERE customer_state = 'SP'
+LIMIT 20;</code></pre>
+    <pre id="where-and" hidden><code class="language-sql">SELECT
+    customer_id,
+    customer_city,
+    customer_state
+FROM customers
+WHERE customer_state = 'SP'
+  AND customer_city = 'sao paulo'
+LIMIT 20;</code></pre>
+    <div id="where-explain" hidden class="explain"><strong>What SQL does:</strong> keeps only rows where customer_state is SP. Add AND when every condition must be true; use OR when either condition may be true.
+      <div class="visual-table" aria-label="WHERE filter example"><span class="head">customer_state</span><span class="head">Keep?</span><span class="keep">SP</span><span class="keep">Yes</span><span class="drop">RJ</span><span class="drop">No</span><span class="drop">MG</span><span class="drop">No</span></div>
+    </div>
+    <div id="where-result" hidden class="result"><strong>Expected rule:</strong> every returned row has customer_state = SP.</div>
+  </section>
+
+  <section>
+    <p class="eyebrow">DISTINCT + ORDER BY + LIMIT</p><h2>Explore, rank, and focus</h2>
+    <div class="case"><strong>Task A:</strong> Return one alphabetized list of every state code represented by a customer—no duplicates.<br><br><strong>Task B:</strong> Return exactly 10 products with a known weight, from heaviest to lightest.</div>
+    <div class="compare fragment"><div><strong>DISTINCT</strong><br>One copy of each state.</div><div><strong>ORDER BY + LIMIT</strong><br>Rank values, then keep the top N.</div></div>
+    <div class="buttons"><button class="toggle" data-target="distinct-sql">Show Task A SQL</button><button class="toggle" data-target="weight-sql">Show Task B SQL</button><button class="toggle" data-target="distinct-explain">Explain</button></div>
+    <pre id="distinct-sql" hidden><code class="language-sql">SELECT DISTINCT customer_state
+FROM customers
+ORDER BY customer_state;</code></pre>
+    <pre id="weight-sql" hidden><code class="language-sql">SELECT
+    product_id,
+    product_category_name,
+    product_weight_g
+FROM products
+WHERE product_weight_g IS NOT NULL
+ORDER BY product_weight_g DESC
+LIMIT 10;</code></pre>
+    <div id="distinct-explain" hidden class="explain"><strong>Task A:</strong> DISTINCT removes repeated state values, then ORDER BY alphabetizes the remaining list. <strong>Task B:</strong> WHERE removes unknown weights, ORDER BY ranks the remaining products, and LIMIT keeps only the first 10.
+      <div class="visual-hint" aria-label="Distinct and ranking process"><div class="visual-card"><strong>DISTINCT</strong>SP, SP, RJ<br>→ SP, RJ</div><div class="visual-arrow">→</div><div class="visual-card"><strong>ORDER BY DESC</strong>900 g<br>650 g<br>420 g</div><div class="visual-arrow">→</div><div class="visual-card"><strong>LIMIT 10</strong>Keep the top 10<br>heaviest products</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">AGGREGATES</p><h2>Summarize many rows</h2>
+    <div class="case"><strong>Scenario:</strong> Before planning next quarter’s outreach budget, the marketing director asks how many customer records the company has.<br><br><strong>Task:</strong> Return one number named total_customers that counts every row in customers.</div>
+    <div class="fragment compare"><div><span class="tag">COUNT</span><br>How many?</div><div><span class="tag">SUM</span><br>How much in total?</div><div><span class="tag">AVG</span><br>What is typical?</div><div><span class="tag">MIN / MAX</span><br>What are the extremes?</div></div>
+    <div class="buttons"><button class="toggle" data-target="count-sql">Show COUNT SQL</button><button class="toggle" data-target="stats-sql">Show price-summary SQL</button><button class="toggle" data-target="aggregate-explain">Explain</button></div>
+    <pre id="count-sql" hidden><code class="language-sql">SELECT COUNT(*) AS total_customers
+FROM customers;</code></pre>
+    <pre id="stats-sql" hidden><code class="language-sql">SELECT
+    ROUND(SUM(price)::numeric, 2) AS total_item_revenue,
+    ROUND(AVG(price)::numeric, 2) AS avg_item_price,
+    MIN(price) AS min_item_price,
+    MAX(price) AS max_item_price
+FROM order_items;</code></pre>
+    <div id="aggregate-explain" hidden class="explain">Aggregate functions collapse many input rows into one summary result. No <code>GROUP BY</code> means one summary for the entire table.
+      <div class="visual-hint" aria-label="Aggregate summary example"><div class="visual-card"><strong>Input prices</strong>20<br>50<br>80</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Summary</strong>COUNT = 3<br>SUM = 150<br>AVG = 50</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">GROUP BY</p><h2>One summary for each category</h2>
+    <div class="case"><strong>Scenario:</strong> An expansion team must decide where the customer base is strongest before choosing a city for the next warehouse.<br><br><strong>Task:</strong> Produce one row for every customer_state with that state’s customer count. Put the largest count first.</div>
+    <div class="compare fragment"><div><strong>COUNT(*)</strong><br>One total for the whole table.</div><div><strong>GROUP BY + COUNT(*)</strong><br>One total for SP, RJ, MG, and every other state.</div></div>
+    <div class="buttons"><button class="toggle" data-target="group-sql">Show SQL</button><button class="toggle" data-target="group-result">Show result shape</button><button class="toggle" data-target="group-explain">Explain</button></div>
+    <pre id="group-sql" hidden><code class="language-sql">SELECT
+    customer_state,
+    COUNT(*) AS customer_count
+FROM customers
+    GROUP BY customer_state
+ORDER BY customer_count DESC;</code></pre>
+    <div id="group-result" hidden class="result"><strong>Expected columns:</strong> customer_state | customer_count<br>Each state becomes one output row.</div>
+    <div id="group-explain" hidden class="explain">GROUP BY splits the input into state groups; COUNT then calculates one number inside each group.
+      <div class="visual-table" aria-label="Group by state example"><span class="head">Input state</span><span class="head">Grouped output</span><span>SP, SP, SP</span><span>SP → 3</span><span>RJ, RJ</span><span>RJ → 2</span><span>MG</span><span>MG → 1</span></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">JOIN</p><h2>Reconnect related tables</h2>
+    <div class="case"><strong>Scenario:</strong> A customer-support lead needs the customer’s location beside each order’s current status.<br><br><strong>Task:</strong> Build a 20-row report showing customer ID, city, state, order ID, and order status.</div>
+    <pre class="mermaid">flowchart LR
+      customer_table["customers"] --> order_table["orders"]</pre>
+    <p class="footer-note">Match the tables with customers.customer_id → orders.customer_id.</p>
+    <div class="why fragment"><strong>Without JOIN:</strong> customer location and order status live in separate tables. Manual ID matching would be repetitive and error-prone.</div>
+    <div class="buttons"><button class="toggle" data-target="join-sql">Show original JOIN SQL</button><button class="toggle" data-target="join-explain">Explain keys</button></div>
+    <pre id="join-sql" hidden><code class="language-sql">SELECT
+    c.customer_id,
+    c.customer_city,
+    c.customer_state,
+    o.order_id,
+    o.order_status
+FROM customers AS c
+JOIN orders AS o
+    ON c.customer_id = o.customer_id
+LIMIT 20;</code></pre>
+    <div id="join-explain" hidden class="explain"><strong>What SQL does:</strong> c and o are aliases. The ON clause tells SQL which customer_id values describe the same customer-order relationship.
+      <div class="visual-hint" aria-label="JOIN key matching"><div class="visual-card"><strong>customers AS c</strong>customer_id = A1<br>city = São Paulo</div><div class="visual-arrow">A1 = A1</div><div class="visual-card"><strong>orders AS o</strong>customer_id = A1<br>order_status = delivered</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">MULTI-TABLE JOIN</p><h2>Follow the relationship chain</h2>
+    <pre class="mermaid">flowchart LR
+      customer_table["customers"] --> order_table["orders"]
+      order_table --> item_table["order_items"]
+      item_table --> product_table["products"]</pre>
+    <p class="fragment">The original tutorial extends the customer-order relationship to order items and products.</p>
+    <div class="buttons"><button class="toggle" data-target="multi-sql">Show state + order-item SQL</button><button class="toggle" data-target="product-sql">Show state + product SQL</button><button class="toggle" data-target="multi-explain">Explain</button></div>
+    <pre id="multi-sql" hidden><code class="language-sql">SELECT
+    c.customer_state,
+    o.order_id,
+    oi.product_id,
+    oi.price
+FROM customers AS c
+JOIN orders AS o
+    ON c.customer_id = o.customer_id
+JOIN order_items AS oi
+    ON o.order_id = oi.order_id
+LIMIT 20;</code></pre>
+    <pre id="product-sql" hidden><code class="language-sql">SELECT
+    c.customer_state,
+    o.order_id,
+    p.product_category_name,
+    oi.price
+FROM customers AS c
+JOIN orders AS o
+    ON c.customer_id = o.customer_id
+JOIN order_items AS oi
+    ON o.order_id = oi.order_id
+JOIN products AS p
+    ON oi.product_id = p.product_id
+LIMIT 20;</code></pre>
+    <div id="multi-explain" hidden class="explain">Each JOIN follows one key. Start at the table containing the requested customer state, travel through orders, then reach item price or product category.
+      <div class="visual-hint" aria-label="Multi-table join path"><div class="visual-card"><strong>customers</strong>customer_state</div><div class="visual-arrow">customer_id</div><div class="visual-card"><strong>orders</strong>order_id</div><div class="visual-arrow">order_id</div><div class="visual-card"><strong>order_items</strong>price<br>product_id</div><div class="visual-arrow">product_id</div><div class="visual-card"><strong>products</strong>category</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">SUBQUERY</p><h2>Use one answer inside another question</h2>
+    <div class="case"><strong>Scenario:</strong> A pricing analyst is investigating unusually expensive purchases and defines “expensive” as above the company’s average order-item price.<br><br><strong>Task:</strong> Return up to 20 above-average order items, sorted by price descending.</div>
+    <pre class="mermaid">flowchart LR
+      average_price["Calculate average price"] --> compare_items["Compare each order item"]
+      compare_items --> above_average["Keep items above average"]</pre>
+    <div class="buttons"><button class="toggle" data-target="sub-sql">Show original SQL</button><button class="toggle" data-target="sub-customer-sql">Show second original subquery</button><button class="toggle" data-target="sub-explain">Explain inner vs outer query</button></div>
+    <pre id="sub-sql" hidden><code class="language-sql">SELECT
+    product_id,
+    order_id,
+    price
+FROM order_items
+WHERE price > (
+    SELECT AVG(price)
+    FROM order_items
+)
+ORDER BY price DESC
+LIMIT 20;</code></pre>
+    <pre id="sub-customer-sql" hidden><code class="language-sql">SELECT
+    customer_id,
+    customer_city,
+    customer_state
+FROM customers
+WHERE customer_id IN (
+    SELECT o.customer_id
+    FROM orders AS o
+    JOIN order_items AS oi
+        ON o.order_id = oi.order_id
+    WHERE oi.price &gt; 1000
+)
+LIMIT 20;</code></pre>
+    <div id="sub-explain" hidden class="explain"><strong>Inner query:</strong> calculates the average price once. <strong>Outer query:</strong> keeps only rows above that benchmark.
+      <div class="visual-hint" aria-label="Subquery process"><div class="visual-card"><strong>Step 1</strong>AVG(price)<br><span class="visual-pill">100</span></div><div class="visual-arrow">→</div><div class="visual-card"><strong>Step 2</strong>Keep price &gt; 100<br><span class="visual-pill">150</span> <span class="visual-pill">220</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">COMBINING SKILLS</p><h2>State revenue</h2>
+    <div class="case"><strong>Scenario:</strong> The sales director is allocating regional advertising budget.<br><br><strong>Task:</strong> Return one row per customer state with total_revenue, defined as the sum of order_items.price for purchases by customers in that state. Sort highest to lowest. Do not include freight.</div>
+    <div class="fragment">
+      <p><span class="tag">customer_state</span> customers &nbsp; <span class="tag">price</span> order_items &nbsp; <span class="tag">link</span> orders</p>
+      <p><span class="tag">total</span> SUM &nbsp; <span class="tag">per state</span> GROUP BY &nbsp; <span class="tag">largest first</span> ORDER BY DESC</p>
+    </div>
+    <div class="buttons"><button class="toggle" data-target="revenue-sql">Show original SQL</button><button class="toggle" data-target="revenue-result">Show result shape</button><button class="toggle" data-target="revenue-explain">Explain</button></div>
+    <pre id="revenue-sql" hidden><code class="language-sql">SELECT
+    c.customer_state,
+    ROUND(SUM(oi.price)::numeric, 2) AS total_revenue
+FROM customers AS c
+JOIN orders AS o
+    ON c.customer_id = o.customer_id
+JOIN order_items AS oi
+    ON o.order_id = oi.order_id
+GROUP BY c.customer_state
+ORDER BY total_revenue DESC;</code></pre>
+    <div id="revenue-result" hidden class="result"><strong>Expected columns:</strong> customer_state | total_revenue. One row represents every qualifying purchase for one state.</div>
+    <div id="revenue-explain" hidden class="explain">This combines a JOIN with a grouped aggregate: connect each item price to its customer state, add prices within each state, then rank states by the total.
+      <div class="visual-hint" aria-label="State revenue calculation"><div class="visual-card"><strong>Joined rows</strong>SP → 20<br>SP → 30<br>RJ → 40</div><div class="visual-arrow">→</div><div class="visual-card"><strong>SUM by state</strong>SP → 50<br>RJ → 40</div><div class="visual-arrow">→</div><div class="visual-card"><strong>ORDER BY DESC</strong>SP first<br>RJ second</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Part 1 decision guide</h2>
+    <table><thead><tr><th>If the question is…</th><th>Use…</th></tr></thead><tbody>
+      <tr><td>I only need certain columns</td><td>SELECT</td></tr>
+      <tr><td>I only need certain rows</td><td>WHERE</td></tr>
+      <tr><td>I want highest, lowest, or top N</td><td>ORDER BY + LIMIT</td></tr>
+      <tr><td>I want one summary number</td><td>COUNT / SUM / AVG / MIN / MAX</td></tr>
+      <tr><td>I want one summary per category</td><td>GROUP BY</td></tr>
+      <tr><td>Information lives in multiple tables</td><td>JOIN</td></tr>
+      <tr><td>One query’s answer is needed by another</td><td>Subquery</td></tr>
+    </tbody></table>
+  </section>
+
+  <section>
+    <div class="part"><p class="eyebrow">Part 2</p><h1>Advanced SQL</h1><p>Organize complicated logic clearly.</p><p class="fragment">More advanced SQL does not mean the basic solution is wrong.</p></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">CTE</p><h2>Same problem, two valid solutions</h2>
+    <div class="case"><strong>Scenario:</strong> Finance wants states performing better than a typical state—not states with a high individual-item price.<br><br><strong>Task:</strong> Calculate each state’s total item-price revenue, then return only totals above the average state total.</div>
+    <pre class="mermaid">flowchart LR
+      state_revenue["State revenue totals"] --> average_state["Average state total"]
+      state_revenue --> above_average_states["States above average"]
+      average_state --> above_average_states</pre>
+    <p class="fragment">First: preserve the original non-CTE solution. Then: show the original CTE version.</p>
+  </section>
+
+  <section>
+    <h2>CTE comparison: without a CTE</h2>
+    <div class="why">This original solution works, but state-revenue logic is nested and repeated.</div>
+    <div class="buttons"><button class="toggle" data-target="nocte-sql">Show original non-CTE SQL</button></div>
+    <pre id="nocte-sql" hidden><code class="language-sql">SELECT *
+FROM (
+    SELECT
+        c.customer_state,
+        SUM(oi.price) AS total_revenue
+    FROM customers AS c
+    JOIN orders AS o ON c.customer_id = o.customer_id
+    JOIN order_items AS oi ON o.order_id = oi.order_id
+    GROUP BY c.customer_state
+) AS state_revenue
+WHERE total_revenue > (
+    SELECT AVG(total_revenue)
+    FROM (
+        SELECT SUM(oi.price) AS total_revenue
+        FROM customers AS c
+        JOIN orders AS o ON c.customer_id = o.customer_id
+        JOIN order_items AS oi ON o.order_id = oi.order_id
+        GROUP BY c.customer_state
+    ) AS all_state_revenue
+)
+ORDER BY total_revenue DESC;</code></pre>
+  </section>
+
+  <section>
+    <h2>CTE comparison: with a CTE</h2>
+    <div class="why">The original CTE version gives the first logical step a name: state_revenue.</div>
+    <div class="buttons"><button class="toggle" data-target="cte-sql">Show original CTE SQL</button><button class="toggle" data-target="cte-explain">Show two steps</button></div>
+    <pre id="cte-sql" hidden><code class="language-sql">WITH state_revenue AS (
+    SELECT
+        c.customer_state,
+        SUM(oi.price) AS total_revenue
+    FROM customers AS c
+    JOIN orders AS o ON c.customer_id = o.customer_id
+    JOIN order_items AS oi ON o.order_id = oi.order_id
+    GROUP BY c.customer_state
+)
+SELECT
+    customer_state,
+    ROUND(total_revenue::numeric, 2) AS total_revenue
+FROM state_revenue
+WHERE total_revenue > (
+    SELECT AVG(total_revenue)
+    FROM state_revenue
+)
+ORDER BY total_revenue DESC;</code></pre>
+    <div id="cte-explain" hidden class="explain"><strong>Step 1:</strong> create state_revenue. <strong>Step 2:</strong> analyze that named result. The CTE improves structure; it does not make the non-CTE answer invalid.
+      <div class="visual-hint" aria-label="CTE two-step process"><div class="visual-card"><strong>WITH state_revenue</strong>SP → 12,000<br>RJ → 8,000</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Final SELECT</strong>Filter, rank, or compare<br>the named result</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">CASE WHEN</p><h2>Turn values into business categories</h2>
+    <div class="case"><strong>Scenario:</strong> A merchandising manager wants a simple price-band report for non-technical stakeholders.<br><br><strong>Task:</strong> Show 20 order items with price_category: Low below 50, Medium from 50 to under 200, and High at 200 or more.</div>
+    <div class="buttons"><button class="toggle" data-target="case-sql">Show original SQL</button><button class="toggle" data-target="case-explain">Explain business rules</button></div>
+    <pre id="case-sql" hidden><code class="language-sql">SELECT
+    product_id,
+    price,
+    CASE
+        WHEN price &lt; 50 THEN 'Low'
+        WHEN price &lt; 200 THEN 'Medium'
+        ELSE 'High'
+    END AS price_category
+FROM order_items
+LIMIT 20;</code></pre>
+    <div id="case-explain" hidden class="explain">CASE WHEN translates raw values into labels. It is useful for segmentation, reporting labels, and business rules.
+      <div class="visual-hint" aria-label="CASE price categories"><div class="visual-card"><strong>price &lt; 50</strong><span class="visual-pill">Low</span></div><div class="visual-card"><strong>50–199.99</strong><span class="visual-pill">Medium</span></div><div class="visual-card"><strong>price ≥ 200</strong><span class="visual-pill">High</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">WINDOW FUNCTIONS</p><h2>Rank without collapsing rows</h2>
+    <div class="case"><strong>Scenario:</strong> A category manager wants the most expensive purchased items within each product category while still seeing every item.<br><br><strong>Task:</strong> Rank each order item by price within its category.</div>
+    <div class="compare fragment"><div><strong>GROUP BY</strong><br>Reduces rows into a summary.</div><div><strong>Window function</strong><br>Keeps rows and adds a calculation across them.</div></div>
+    <div class="buttons"><button class="toggle" data-target="window-sql">Show original SQL</button><button class="toggle" data-target="window-explain">Explain ranking</button></div>
+    <pre id="window-sql" hidden><code class="language-sql">SELECT
+    p.product_category_name,
+    oi.product_id,
+    oi.price,
+    RANK() OVER (
+        PARTITION BY p.product_category_name
+        ORDER BY oi.price DESC
+    ) AS price_rank
+FROM order_items AS oi
+JOIN products AS p
+    ON oi.product_id = p.product_id
+WHERE p.product_category_name IS NOT NULL
+ORDER BY p.product_category_name, price_rank
+LIMIT 30;</code></pre>
+    <div id="window-explain" hidden class="explain">PARTITION BY restarts ranking per category. ORDER BY inside OVER determines who is rank 1.
+      <div class="visual-table" aria-label="Window ranking example"><span class="head">category</span><span class="head">price → rank</span><span>books</span><span>80 → 1</span><span>books</span><span>45 → 2</span><span>toys</span><span>60 → 1</span><span>toys</span><span>20 → 2</span></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Optional</p><h2>Recursive CTE</h2>
+    <p>The original tutorial uses a small standalone example because Olist has no natural hierarchy.</p>
+    <div class="buttons"><button class="toggle" data-target="recursive-sql">Show original example</button><button class="toggle" data-target="recursive-explain">Explain</button></div>
+    <pre id="recursive-sql" hidden><code class="language-sql">WITH RECURSIVE countdown AS (
+    SELECT 3 AS number
+    UNION ALL
+    SELECT number - 1
+    FROM countdown
+    WHERE number &gt; 1
+)
+SELECT number
+FROM countdown;</code></pre>
+    <div id="recursive-explain" hidden class="explain">A recursive CTE has a starting row, then repeatedly uses its previous output to create the next row. The condition stops the loop.
+      <div class="visual-hint" aria-label="Recursive countdown steps"><div class="visual-card"><strong>Start</strong>number = 3</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Repeat</strong>3 − 1 = 2<br>2 − 1 = 1</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Stop</strong>number is no longer<br>greater than 1</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Part 2 decision guide</h2>
+    <table><thead><tr><th>If the question is…</th><th>Use…</th></tr></thead><tbody>
+      <tr><td>I need to name an intermediate result before using it again</td><td>CTE (<code>WITH</code>)</td></tr>
+      <tr><td>I need to turn numeric rules into business labels</td><td><code>CASE WHEN</code></td></tr>
+      <tr><td>I need ranks, running totals, or comparisons while keeping every row</td><td>Window function (<code>OVER</code>)</td></tr>
+      <tr><td>I need each group’s first, previous, or next row</td><td>Window function with <code>ROW_NUMBER</code>, <code>LAG</code>, or <code>LEAD</code></td></tr>
+      <tr><td>I need to repeat a step through a hierarchy or until a stopping rule</td><td>Recursive CTE</td></tr>
+    </tbody></table>
+  </section>
+
+  <section>
+    <div class="part"><p class="eyebrow">Part 3</p><h1>Mini-Test</h1><p>Think first. All answers stay hidden until you choose to reveal them.</p></div>
+  </section>
+
+  <section>
+    <h2>Mini-Test 1 — Basic</h2>
+    <div class="mini"><strong>Question:</strong> Return exactly 5 rows. Each row must show a state code and the number of customers in that state. Sort from the largest customer count to the smallest.<br><br><strong>Expected output:</strong> customer_state, customer_count.</div>
+    <div class="practice-runner" data-answer-id="m1-solution">
+      <h3>Try your SQL</h3>
+      <p>Write a read-only query, then run it before revealing the hint or solution.</p>
+      <textarea class="practice-sql" aria-label="Mini-Test 1 SQL" placeholder="Write your SQL here..."></textarea>
+      <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
+      <div class="inline-query-result" hidden></div>
+      <div class="answer-status" aria-live="polite" hidden></div>
+    </div>
+    <div class="buttons"><button class="toggle" data-target="m1-hint">Show hint</button><button class="toggle" data-target="m1-solution">Show solution</button></div>
+    <div id="m1-hint" hidden class="explain">Think: one result per state, a count, descending order, and five rows.
+      <div class="visual-hint" aria-label="Mini-Test 1 query plan"><div class="visual-card"><strong>customers</strong>Many customer rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>GROUP BY</strong>One group per state</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT + TOP 5</strong>Largest five groups</div></div>
+    </div>
+    <pre id="m1-solution" hidden><code class="language-sql">SELECT
+    customer_state,
+    COUNT(*) AS customer_count
+FROM customers
+GROUP BY customer_state
+ORDER BY customer_count DESC
+LIMIT 5;</code></pre>
+  </section>
+
+  <section>
+    <h2>Mini-Test 2 — JOIN</h2>
+    <div class="mini"><strong>Question:</strong> Return exactly 5 rows. Each row must show a customer state and its total revenue, defined as the sum of order_items.price for purchases by customers in that state. Do not include freight.</div>
+    <div class="practice-runner" data-answer-id="m2-solution">
+      <h3>Try your SQL</h3>
+      <p>Use the Olist tables from the schema diagram. Run your own read-only query here.</p>
+      <textarea class="practice-sql" aria-label="Mini-Test 2 SQL" placeholder="Write your SQL here..."></textarea>
+      <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
+      <div class="inline-query-result" hidden></div>
+      <div class="answer-status" aria-live="polite" hidden></div>
+    </div>
+    <div class="buttons"><button class="toggle" data-target="m2-hint">Show hint</button><button class="toggle" data-target="m2-solution">Show solution</button></div>
+    <div id="m2-hint" hidden class="explain">Find the state, the customer-order link, and the item price before writing the aggregation.
+      <div class="visual-hint" aria-label="Mini-Test 2 join and aggregation plan"><div class="visual-card"><strong>customers</strong><span class="visual-pill">state</span></div><div class="visual-arrow">customer_id</div><div class="visual-card"><strong>orders</strong><span class="visual-pill">order_id</span></div><div class="visual-arrow">order_id</div><div class="visual-card"><strong>order_items</strong><span class="visual-pill">price</span><br>SUM per state</div></div>
+    </div>
+    <pre id="m2-solution" hidden><code class="language-sql">SELECT
+    c.customer_state,
+    ROUND(SUM(oi.price)::numeric, 2) AS total_revenue
+FROM customers AS c
+JOIN orders AS o ON c.customer_id = o.customer_id
+JOIN order_items AS oi ON o.order_id = oi.order_id
+GROUP BY c.customer_state
+ORDER BY total_revenue DESC
+LIMIT 5;</code></pre>
+  </section>
+
+  <section>
+    <h2>Mini-Test 3 — Uber interview (Medium)</h2>
+    <div class="mini"><strong>Question:</strong> Treat each row in <code>orders</code> as one transaction. For every <code>customer_unique_id</code>, return that customer’s third chronological order.<br><br><strong>Output:</strong> customer_unique_id, order_id, and order_purchase_timestamp. Exclude customers with fewer than three orders. If timestamps tie, order by order_id.</div>
+    <p class="source-note"><strong>Interview source:</strong> Adapted for the Olist dataset from DataLemur’s <a href="https://datalemur.com/questions/sql-third-transaction" target="_blank" rel="noopener noreferrer">User’s Third Transaction — Uber, Medium</a>.</p>
+    <div class="practice-runner" data-answer-id="m3-solution">
+      <h3>Try your SQL</h3>
+      <p>This follows the source question’s small, direct output: one third transaction per qualifying customer.</p>
+      <textarea class="practice-sql" aria-label="Mini-Test 3 SQL" placeholder="Write your SQL here..."></textarea>
+      <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
+      <div class="inline-query-result" hidden></div>
+      <div class="answer-status" aria-live="polite" hidden></div>
+    </div>
+    <div class="buttons"><button class="toggle" data-target="m3-hint">Show hints</button><button class="toggle" data-target="m3-solution">Show solution</button></div>
+    <div id="m3-hint" hidden class="explain">Use <code>ROW_NUMBER()</code> partitioned by <code>customer_unique_id</code>, ordered by order timestamp and order ID. Then keep row number 3.
+      <div class="visual-table" aria-label="Mini-Test 3 row numbering example"><span class="head">customer A order</span><span class="head">ROW_NUMBER()</span><span>2022-01-08</span><span>1</span><span>2022-01-10</span><span>2</span><span class="keep">2022-02-05</span><span class="keep">3 — keep</span></div>
+    </div>
+    <pre id="m3-solution" hidden><code class="language-sql">WITH ranked_orders AS (
+    SELECT
+        c.customer_unique_id,
+        o.order_id,
+        o.order_purchase_timestamp,
+        ROW_NUMBER() OVER (
+            PARTITION BY c.customer_unique_id
+            ORDER BY o.order_purchase_timestamp, o.order_id
+        ) AS order_number
+    FROM customers AS c
+    JOIN orders AS o
+        ON c.customer_id = o.customer_id
+)
+SELECT
+    customer_unique_id,
+    order_id,
+    order_purchase_timestamp
+FROM ranked_orders
+WHERE order_number = 3
+ORDER BY order_purchase_timestamp, order_id;</code></pre>
+  </section>
+
+  <section>
+    <h2>Mini-Test 4 — Apple interview (Simplified)</h2>
+    <div class="mini"><strong>Question:</strong> For orders placed in 2018, calculate the total number of orders for each month.<br><br><strong>Output:</strong> order_month and order_count. Sort from the earliest month to the latest.</div>
+    <p class="source-note"><strong>Interview source:</strong> Simplified Olist monthly-performance adaptation inspired by DataLemur’s <a href="https://datalemur.com/blog/apple-sql-interview-questions" target="_blank" rel="noopener noreferrer">Apple SQL interview questions</a>. This version uses the available <code>orders</code> table.</p>
+    <div class="practice-runner" data-answer-id="m4-solution">
+      <h3>Try your SQL</h3>
+      <p>Focus on one simple summary per month: filter, group, count, and sort.</p>
+      <textarea class="practice-sql" aria-label="Mini-Test 4 SQL" placeholder="Write your SQL here..."></textarea>
+      <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
+      <div class="inline-query-result" hidden></div>
+      <div class="answer-status" aria-live="polite" hidden></div>
+    </div>
+    <div class="buttons"><button class="toggle" data-target="m4-hint">Show hint</button><button class="toggle" data-target="m4-solution">Show solution</button></div>
+    <div id="m4-hint" hidden class="explain">Use <code>DATE_TRUNC('month', order_purchase_timestamp)</code> to create the month, then use <code>COUNT(*)</code>.
+      <div class="visual-hint" aria-label="Mini-Test 4 monthly count plan"><div class="visual-card"><strong>orders</strong>2018-03-04<br>2018-03-19<br>2018-04-02</div><div class="visual-arrow">→</div><div class="visual-card"><strong>DATE_TRUNC</strong>2018-03<br>2018-03<br>2018-04</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT</strong>2018-03 → 2<br>2018-04 → 1</div></div>
+    </div>
+    <pre id="m4-solution" hidden><code class="language-sql">SELECT
+    DATE_TRUNC('month', order_purchase_timestamp)::date AS order_month,
+    COUNT(*) AS order_count
+FROM orders
+WHERE order_purchase_timestamp &gt;= DATE '2018-01-01'
+  AND order_purchase_timestamp &lt; DATE '2019-01-01'
+GROUP BY order_month
+ORDER BY order_month;</code></pre>
+  </section>
+
+  <section>
+    <div class="part">
+      <p class="eyebrow">Appendix</p>
+      <h1>APPENDIX — TABLE MANAGEMENT</h1>
+      <p>Copy-only reference for creating, changing, and removing a safe practice table.</p>
+    </div>
+    <h2>Table management and CRUD reference</h2>
+    <div class="case"><strong>Use this in your own Supabase SQL Editor:</strong> these commands change data or database structure, so this teaching website deliberately does not run them. Copy the examples only after you understand each command, and use the separate <code>sql_practice</code> table—not the Olist tables.</div>
+    <h3>1. Create a safe practice table</h3>
+    <pre class="sql-reference"><code class="language-sql">CREATE TABLE IF NOT EXISTS sql_practice (
+    id BIGSERIAL PRIMARY KEY,
+    student_name TEXT,
+    score INT
+);</code></pre>
+    <h3>2. Insert practice rows</h3>
+    <pre class="sql-reference"><code class="language-sql">INSERT INTO sql_practice (student_name, score)
+VALUES
+    ('Jay', 90),
+    ('Alex', 85),
+    ('Sam', 78);</code></pre>
+    <h3>3. Read the practice table</h3>
+    <pre class="sql-reference"><code class="language-sql">SELECT *
+FROM sql_practice;</code></pre>
+    <h3>4. Update one row</h3>
+    <pre class="sql-reference"><code class="language-sql">UPDATE sql_practice
+SET score = 95
+WHERE student_name = 'Jay';</code></pre>
+    <h3>5. Delete one row</h3>
+    <pre class="sql-reference"><code class="language-sql">DELETE FROM sql_practice
+WHERE student_name = 'Sam';</code></pre>
+    <h3>6. Drop the practice table when finished</h3>
+    <pre class="sql-reference"><code class="language-sql">DROP TABLE IF EXISTS sql_practice;</code></pre>
+    <p class="footer-note">Important: always check the table name and WHERE clause before running UPDATE or DELETE. DROP TABLE permanently removes the table and its data.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Appendix · CRUD</p><h2>Practice changes safely</h2>
+    <div class="case"><strong>Practice goal:</strong> Add, read, change, and remove sample student scores without modifying any Olist table. Every write targets only <code>sql_practice</code>.</div>
+    <div class="fragment compare"><div><strong>CREATE / INSERT</strong><br>Add data.</div><div><strong>READ / SELECT</strong><br>Retrieve data.</div><div><strong>UPDATE</strong><br>Modify existing data.</div><div><strong>DELETE</strong><br>Remove data.</div></div>
+    <div class="buttons"><button class="toggle" data-target="crud-sql">Show safe CRUD SQL</button><button class="toggle" data-target="crud-read">Show original READ query</button><button class="toggle" data-target="cleanup-sql">Show cleanup</button></div>
+    <pre id="crud-sql" class="sql-reference" hidden><code class="language-sql">CREATE TABLE IF NOT EXISTS sql_practice (
+    id BIGSERIAL PRIMARY KEY,
+    student_name TEXT,
+    score INT
+);
+
+INSERT INTO sql_practice (student_name, score)
+VALUES ('Jay', 90), ('Alex', 85), ('Sam', 78);
+
+UPDATE sql_practice
+SET score = 95
+WHERE student_name = 'Jay';
+
+DELETE FROM sql_practice
+WHERE student_name = 'Sam';</code></pre>
+    <pre id="crud-read" class="sql-reference" hidden><code class="language-sql">SELECT *
+FROM sql_practice;</code></pre>
+    <pre id="cleanup-sql" class="sql-reference" hidden><code class="language-sql">DROP TABLE IF EXISTS sql_practice;</code></pre>
+    <p class="footer-note">These are copy-only examples. Run write operations only in your own Supabase SQL Editor.</p>
+  </section>
+
+  <section>
+    <div class="part">
+      <p class="eyebrow">Next</p>
+      <h1>NEXT — RESOURCES AND PRACTICE</h1>
+      <p>Keep building SQL fluency, practice interview questions, and connect database work with pandas analysis.</p>
+    </div>
+    <h2>Text-to-SQL</h2>
+    <pre class="mermaid">flowchart LR
+      question["Natural-language question"] --> reasoning["Human reasoning"]
+      reasoning --> sql["SQL"]
+      sql --> db["Database"]
+      db --> result["Result"]</pre>
+    <p>Next lesson: Natural-language question → LLM → SQL → Database → Result. Understand the SQL reasoning first so you can evaluate and improve AI-generated SQL.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Resources</p>
+    <h2>Practice beyond this tutorial</h2>
+    <h3>Keep practicing</h3>
+    <div class="resource-grid">
+      <div class="resource-card recommended">
+        <h3>DataLemur</h3>
+        <p>Best next step for data-science interview practice. Filter SQL questions by company and difficulty, then use the hints only after attempting the question.</p>
+        <a href="https://datalemur.com/" target="_blank" rel="noopener noreferrer">Practice on DataLemur →</a>
+      </div>
+      <div class="resource-card">
+        <h3>LeetCode SQL 50</h3>
+        <p>A structured set of 50 essential questions, covering basic through intermediate SQL. It is useful for building speed and syntax fluency.</p>
+        <a href="https://leetcode.com/studyplan/top-sql-50/" target="_blank" rel="noopener noreferrer">Open SQL 50 →</a>
+      </div>
+      <div class="resource-card">
+        <h3>PostgreSQL documentation</h3>
+        <p>Supabase uses PostgreSQL. Use the official documentation when a function, cast, date expression, or query behavior is unfamiliar.</p>
+        <a href="https://www.postgresql.org/docs/current/" target="_blank" rel="noopener noreferrer">Read PostgreSQL docs →</a>
+      </div>
+    </div>
+
+    <h3>SQL is not identical in every database</h3>
+    <div class="compare">
+      <div><strong>PostgreSQL shorthand used here</strong><br><br><code>ROUND(AVG(price)::numeric, 2)</code><br><br><span class="footer-note"><code>::numeric</code> is PostgreSQL’s compact type-cast syntax.</span></div>
+      <div><strong>More portable SQL spelling</strong><br><br><code>ROUND(CAST(AVG(price) AS NUMERIC), 2)</code><br><br><span class="footer-note">Both expressions turn the average into a numeric value before rounding.</span></div>
+    </div>
+    <p class="footer-note">When moving between PostgreSQL, MySQL, SQLite, BigQuery, or SQL Server, check date functions, text matching, type casts, and limit syntax. The PostgreSQL <a href="https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-TYPE-CASTS" target="_blank" rel="noopener noreferrer">type-cast documentation</a> explains both cast forms.</p>
+
+    <h3>Practice one question three times</h3>
+    <div class="visual-hint" aria-label="Practice the same question in SQL, pandas, and comparison">
+      <div class="visual-card"><strong>1. SQL</strong>Solve the business question in this website or Supabase. State the table grain and validate the output.</div>
+      <div class="visual-arrow">→</div>
+      <div class="visual-card"><strong>2. Pandas · IDS720</strong>Load the same data, then recreate the logic with <code>merge</code>, <code>groupby</code>, <code>agg</code>, and <code>sort_values</code>.</div>
+      <div class="visual-arrow">→</div>
+      <div class="visual-card"><strong>3. Compare</strong>Do the SQL and pandas outputs match? If not, inspect joins, missing values, duplicates, and grouping level.</div>
+    </div>
+
+    <h3>Example: top five customer states</h3>
+    <p>Business question: Which five states have the most customers? Solve it once with SQL, then recreate the same result in pandas.</p>
+    <div class="code-pair">
+      <div>
+        <h4>SQL</h4>
+        <pre class="code-example sql-example"><code class="language-sql">SELECT
+    customer_state,
+    COUNT(*) AS customer_count
+FROM customers
+GROUP BY customer_state
+ORDER BY customer_count DESC
+LIMIT 5;</code></pre>
+      </div>
+      <div>
+        <h4>pandas</h4>
+        <pre class="code-example pandas-example"><code class="language-python">top_states = (
+    customers
+    .groupby("customer_state")
+    .size()
+    .reset_index(name="customer_count")
+    .sort_values("customer_count", ascending=False)
+    .head(5)
+)</code></pre>
+      </div>
+    </div>
+    <p class="footer-note">The same idea appears in both languages: group by state, count rows, sort descending, and keep five rows.</p>
+  </section>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/common.min.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: { primaryColor: '#EFE7DA', primaryTextColor: '#38332E', lineColor: '#7A6652', secondaryColor: '#A8947C', tertiaryColor: '#FAF7F0', fontSize: '20px' } });
+  await mermaid.run({ querySelector: '.mermaid' });
+</script>
+<script>
+  var sidebar = document.getElementById('sidebar');
+  var sidebarButtons = document.querySelectorAll('#sidebar [data-slide]');
+  var topicSections = document.querySelectorAll('#content > section');
+  function setActiveTopic(index) {
+    sidebarButtons.forEach(function(button) {
+      button.classList.toggle('active', Number(button.dataset.slide) === index);
+    });
+  }
+  sidebarButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      topicSections[Number(button.dataset.slide)].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      sidebar.classList.remove('open');
+    });
+  });
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) setActiveTopic(Array.prototype.indexOf.call(topicSections, entry.target));
+    });
+  }, { rootMargin: '-20% 0px -65% 0px', threshold: 0 });
+  topicSections.forEach(function(section) { observer.observe(section); });
+  setActiveTopic(0);
+  document.getElementById('sidebar-toggle').addEventListener('click', function() {
+    sidebar.classList.toggle('open');
+  });
+  document.querySelectorAll('.toggle[data-target]').forEach(function(button) {
+    button.addEventListener('click', function(event) {
+      event.stopPropagation();
+      var target = document.getElementById(button.dataset.target);
+      target.hidden = !target.hidden;
+      var queryResult = target.nextElementSibling;
+      if (queryResult && queryResult.classList.contains('inline-query-result') && target.hidden) queryResult.hidden = true;
+      button.textContent = target.hidden ? button.dataset.label || button.textContent.replace('Hide', 'Show') : button.textContent.replace('Show', 'Hide');
+    });
+  });
+  document.querySelectorAll('#content pre:not(.mermaid) code').forEach(function(code) {
+    if (window.hljs) hljs.highlightElement(code);
+    if (code.parentElement.classList.contains('code-example')) return;
+    var copyButton = document.createElement('button');
+    copyButton.type = 'button';
+    copyButton.className = 'copy-code';
+    copyButton.textContent = 'Copy SQL';
+    copyButton.addEventListener('click', async function(event) {
+      event.stopPropagation();
+      await navigator.clipboard.writeText(code.textContent);
+      copyButton.textContent = 'Copied';
+      setTimeout(function() { copyButton.textContent = 'Copy SQL'; }, 1200);
+    });
+    code.parentElement.appendChild(copyButton);
+    if (code.parentElement.classList.contains('sql-reference')) return;
+    var runButton = document.createElement('button');
+    runButton.type = 'button';
+    runButton.className = 'run-code';
+    runButton.textContent = 'Run SQL';
+    var resultBox = document.createElement('div');
+    resultBox.className = 'inline-query-result';
+    resultBox.hidden = true;
+    runButton.addEventListener('click', function(event) {
+      event.stopPropagation();
+      executeQuery(code.textContent, resultBox);
+    });
+    code.parentElement.appendChild(runButton);
+    code.parentElement.insertAdjacentElement('afterend', resultBox);
+  });
+  var dbStatus = document.getElementById('db-status');
+  async function api(path, payload) {
+    var response = await fetch(path, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    var data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Request failed.');
+    return data;
+  }
+  fetch('/api/health')
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      dbStatus.textContent = 'Local server ' + data.version + ' is ready. Not connected.';
+    })
+    .catch(function() {
+      dbStatus.textContent = 'Local server not found. Open this site through Open_SQL_Tutorial_Mac.command or Open_SQL_Tutorial_Windows.bat.';
+    });
+  document.getElementById('connect-db').addEventListener('click', async function() {
+    dbStatus.textContent = 'Testing connection…';
+    try {
+      var data = await api('/api/connect', {
+        connection_url: document.getElementById('connection-url').value,
+        password: document.getElementById('database-password').value
+      });
+      document.getElementById('database-password').value = '';
+      dbStatus.textContent = data.message + ' You can now run SQL from any code block.';
+    } catch (error) { dbStatus.textContent = error.message; }
+  });
+  function showQueryResult(resultBox, data) {
+    resultBox.hidden = false;
+    resultBox.innerHTML = '';
+    var table = document.createElement('table');
+    var header = document.createElement('tr');
+    data.columns.forEach(function(column) { var cell = document.createElement('th'); cell.textContent = column; header.appendChild(cell); });
+    table.appendChild(header);
+    data.rows.forEach(function(row) {
+      var line = document.createElement('tr');
+      row.forEach(function(value) { var cell = document.createElement('td'); cell.textContent = value === null ? 'NULL' : String(value); line.appendChild(cell); });
+      table.appendChild(line);
+    });
+    resultBox.appendChild(table);
+  }
+  async function executeQuery(sql, resultBox) {
+    resultBox.hidden = false;
+    resultBox.textContent = 'Running query…';
+    try {
+      var data = await api('/api/query', { sql: sql });
+      showQueryResult(resultBox, data);
+      dbStatus.textContent = 'Returned ' + data.rows.length + ' row(s)' + (data.truncated ? ' (first 500 shown).' : '.');
+      return data;
+    } catch (error) {
+      resultBox.textContent = error.message;
+      dbStatus.textContent = 'Query could not run.';
+      return null;
+    }
+  }
+  function normalizeResultValue(value) {
+    if (value === null) return 'null';
+    var text = String(value).trim();
+    if (/^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(text)) {
+      var numeric = Number(text);
+      if (Number.isFinite(numeric)) return 'number:' + String(numeric);
+    }
+    return 'text:' + text;
+  }
+  function resultRowsMatch(actual, expected) {
+    if (actual.rows.length !== expected.rows.length) return false;
+    var actualRows = actual.rows.map(function(row) {
+      return JSON.stringify(row.map(normalizeResultValue));
+    }).sort();
+    var expectedRows = expected.rows.map(function(row) {
+      return JSON.stringify(row.map(normalizeResultValue));
+    }).sort();
+    return actualRows.every(function(row, index) { return row === expectedRows[index]; });
+  }
+  function setAnswerStatus(statusBox, state, message) {
+    statusBox.hidden = false;
+    statusBox.className = 'answer-status ' + state;
+    statusBox.textContent = message;
+  }
+  function autoExpandSqlEditor(editor) {
+    editor.style.height = 'auto';
+    editor.style.height = Math.max(150, editor.scrollHeight) + 'px';
+  }
+  document.querySelectorAll('.practice-sql').forEach(function(editor) {
+    editor.addEventListener('input', function() { autoExpandSqlEditor(editor); });
+    autoExpandSqlEditor(editor);
+  });
+  document.querySelectorAll('#content > section').forEach(function(section) {
+    if (section.querySelector('.practice-runner')) return;
+    var runnableSql = Array.prototype.some.call(section.querySelectorAll('pre code'), function(code) {
+      return !code.parentElement.classList.contains('sql-reference') && !code.parentElement.classList.contains('code-example');
+    });
+    if (!runnableSql) return;
+
+    var controls = section.querySelector('.buttons');
+    if (!controls) {
+      controls = document.createElement('div');
+      controls.className = 'buttons';
+      var heading = section.querySelector('h1, h2');
+      if (heading) heading.insertAdjacentElement('afterend', controls);
+      else section.appendChild(controls);
+    }
+    var togglePractice = document.createElement('button');
+    togglePractice.type = 'button';
+    togglePractice.className = 'toggle';
+    togglePractice.textContent = 'Try your SQL';
+    controls.appendChild(togglePractice);
+
+    var practice = document.createElement('div');
+    practice.className = 'practice-runner lesson-practice';
+    practice.hidden = true;
+    var practiceTitle = document.createElement('h3');
+    practiceTitle.textContent = 'Try your SQL';
+    var practiceText = document.createElement('p');
+    practiceText.textContent = 'Write a read-only query based on this lesson, then run it against your connected Supabase database.';
+    var editor = document.createElement('textarea');
+    editor.className = 'practice-sql';
+    editor.setAttribute('aria-label', 'Lesson SQL practice');
+    editor.setAttribute('placeholder', 'Write your SQL here...');
+    var practiceButtons = document.createElement('div');
+    practiceButtons.className = 'buttons';
+    var runPractice = document.createElement('button');
+    runPractice.type = 'button';
+    runPractice.className = 'toggle';
+    runPractice.textContent = 'Run my SQL';
+    var resultBox = document.createElement('div');
+    resultBox.className = 'inline-query-result';
+    resultBox.hidden = true;
+    practiceButtons.appendChild(runPractice);
+    practice.appendChild(practiceTitle);
+    practice.appendChild(practiceText);
+    practice.appendChild(editor);
+    practice.appendChild(practiceButtons);
+    practice.appendChild(resultBox);
+    controls.insertAdjacentElement('afterend', practice);
+
+    editor.addEventListener('input', function() { autoExpandSqlEditor(editor); });
+    togglePractice.addEventListener('click', function() {
+      practice.hidden = !practice.hidden;
+      togglePractice.textContent = practice.hidden ? 'Try your SQL' : 'Hide Try your SQL';
+      if (!practice.hidden) {
+        autoExpandSqlEditor(editor);
+        editor.focus();
+      }
+    });
+    runPractice.addEventListener('click', function() {
+      executeQuery(editor.value, resultBox);
+    });
+  });
+  document.querySelectorAll('.run-practice').forEach(function(button) {
+    button.addEventListener('click', async function() {
+      var practice = button.closest('.practice-runner');
+      var statusBox = practice.querySelector('.answer-status');
+      var attemptId = String(Number(practice.dataset.attemptId || '0') + 1);
+      practice.dataset.attemptId = attemptId;
+      statusBox.hidden = true;
+      var actual = await executeQuery(
+        practice.querySelector('.practice-sql').value,
+        practice.querySelector('.inline-query-result')
+      );
+      if (!actual || practice.dataset.attemptId !== attemptId) return;
+      if (actual.truncated) {
+        setAnswerStatus(statusBox, 'checking', 'Your result has more than 500 rows, so it cannot be verified automatically. Refine the query and try again.');
+        return;
+      }
+      var answerCode = document.querySelector('#' + practice.dataset.answerId + ' code');
+      if (!answerCode) {
+        setAnswerStatus(statusBox, 'checking', 'The answer key is unavailable, so this result cannot be verified automatically.');
+        return;
+      }
+      setAnswerStatus(statusBox, 'checking', 'Checking your result…');
+      try {
+        var expected = await api('/api/query', { sql: answerCode.textContent });
+        if (practice.dataset.attemptId !== attemptId) return;
+        if (expected.truncated) {
+          setAnswerStatus(statusBox, 'checking', 'The expected result is too large for automatic verification.');
+        } else if (resultRowsMatch(actual, expected)) {
+          setAnswerStatus(statusBox, 'correct', 'Correct — your query returned the expected result. Different valid SQL approaches are accepted.');
+        } else {
+          setAnswerStatus(statusBox, 'incorrect', 'Not yet — the returned rows differ from the expected result. Review the question, then try again or open the hint.');
+        }
+      } catch (error) {
+        setAnswerStatus(statusBox, 'checking', 'Your query ran, but the answer could not be verified automatically.');
+      }
+    });
+  });
+</script>
+</body>
+</html>

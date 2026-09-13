@@ -1,232 +1,70 @@
-# SQL Tutorial with Supabase
+# SQL Practice Lab
 
-An interactive SQL learning website built around the Olist Brazilian E-Commerce dataset and Supabase PostgreSQL.
+Interactive SQL lessons using the Olist Brazilian E-Commerce dataset and Supabase PostgreSQL. Learn the material, run the included read-only queries, and try your own answers in the Mini-Test.
 
-Students can:
+First time here? Follow [Supabase setup](SUPABASE_SETUP_README.md) to create a database and import the data.
 
-- Use the left sidebar to jump to any topic.
-- Study SQL Fundamentals, Advanced SQL, Mini-Test, and Appendix content.
-- View, copy, and run read-only queries from SQL blocks.
-- Write their own SQL below each Mini-Test question and inspect the result.
-- Copy table-management and CRUD examples from the Appendix into their own Supabase SQL Editor.
+## Start the site
 
-## Setup and Documentation
+Install the dependencies once:
 
-For first-time setup, project creation, and Supabase database configuration, follow the dedicated guide:
-
-- [SUPABASE_SETUP_README.md](SUPABASE_SETUP_README.md) — create your Supabase project, copy the correct Session pooler URL, and import the included Olist CSV data.
-
-This README covers the day-to-day usage of the SQL Practice Lab. The setup guide is the recommended path before the first launch.
-
-## Project Files
-
-| File | Purpose |
-|---|---|
-| requirements.txt | Python dependencies for the website |
-| sql_tutorial.html | Website frontend |
-| sql_tutorial_server.py | Local read-only Supabase API server |
-| SUPABASE_SETUP_README.md | Step-by-step Supabase project creation and CSV import instructions |
-| Open_SQL_Tutorial_Mac.command | One-click macOS launcher |
-| Open_SQL_Tutorial_Windows.bat | One-click Windows launcher |
-
-## Requirements
-
-- A web browser
-- Python 3.10 or later
-- sqlalchemy and psycopg[binary]
-- An accessible Supabase PostgreSQL project
-
-Install all project dependencies:
-
-~~~bash
+```bash
 python -m pip install -r requirements.txt
-~~~
+```
 
-> Both launchers find the project from the launcher's own location, so they work after the repository is cloned into any folder. They use a project-local `.venv` first (if present), then the default Miniforge installation, then Python on your system PATH.
+Then open the launcher for your system:
 
-## Open the Website
+| macOS | Windows |
+| --- | --- |
+| Double-click `Open_SQL_Tutorial_Mac.command` | Double-click `Open_SQL_Tutorial_Windows.bat` |
 
-### macOS
+The site opens at <http://127.0.0.1:8765>. Keep the Terminal or server window open while using live queries.
 
-In Finder, open the project folder and double-click:
+If the launcher does not work, run `python sql_tutorial_server.py` and open that address yourself. Do not open `sql_tutorial.html` with `file:///`; the lessons will display, but queries cannot run.
 
-~~~text
-Open_SQL_Tutorial_Mac.command
-~~~
+### Windows note
 
-Your browser will open:
+The Windows launcher works with a project-local `.venv`, Miniforge in its default location, or Python on your PATH. If Python is not installed, install [Miniforge](https://github.com/conda-forge/miniforge/releases/latest) or [Python](https://www.python.org/downloads/windows/), then run the install command above.
 
-~~~text
-http://127.0.0.1:8765
-~~~
+## Connect Supabase
 
-Keep the Terminal window open. Closing it or pressing Control + C stops live query functionality.
+1. In Supabase, select **Connect** → **Session pooler** and copy the connection string on port **5432**.
+2. In the site sidebar, open **Connect your Supabase database**.
+3. Paste the URL, enter your database password separately, and select **Test connection**.
 
-### Windows
+Leave Supabase's `[YOUR-PASSWORD]` placeholder in the copied URL; enter the real password only in the password field. Copy the pooler host exactly—do not construct it yourself.
 
-In File Explorer, double-click:
+For a class fallback connection, ask a TA for the password and use the course URL they provide. Never put a password in this repository or a shared document.
 
-~~~text
-Open_SQL_Tutorial_Windows.bat
-~~~
+## Use the lessons
 
-It opens your browser and a SQL Tutorial Server window. Keep the server window open while using live queries, then close it when you are done.
+- Use the sidebar to navigate Fundamentals, Advanced SQL, Mini-Test, and Appendix.
+- Select **Show SQL**, then **Run SQL**, to execute an example.
+- In Mini-Test, write a query under **Try your SQL** and select **Run my SQL**.
+- The Appendix contains copyable table-management examples for use in the Supabase SQL Editor.
 
-### Windows First-Time Setup
-
-The recommended option is **Miniforge** because the Windows launcher automatically detects its default installation path. A project-local `.venv` or a Python installation on PATH also works.
-
-1. Download the current Windows x86_64 installer from the official [Miniforge releases page](https://github.com/conda-forge/miniforge/releases/latest).
-2. Run the installer and choose **Just Me**. Keep the default installation folder, usually C:\Users\YOUR_NAME\miniforge3, so Open_SQL_Tutorial_Windows.bat can find it automatically.
-3. Keep **Create start menu shortcuts** enabled. Adding Miniforge to PATH is optional and is not required by this project.
-4. Open **Miniforge Prompt** from the Windows Start menu.
-5. Install the project dependencies:
-
-~~~bat
-python -m pip install -r requirements.txt
-~~~
-
-6. Verify the installation:
-
-~~~bat
-python -c "import sqlalchemy, psycopg; print('Packages are ready')"
-~~~
-
-7. Return to File Explorer and double-click Open_SQL_Tutorial_Windows.bat.
-
-#### Alternative: Standard Python
-
-You can instead install Python from the official [Python for Windows download page](https://www.python.org/downloads/windows/). Make sure the python command is available in Command Prompt, then run:
-
-~~~bat
-python -m pip install -r requirements.txt
-~~~
-
-After that, double-click Open_SQL_Tutorial_Windows.bat.
-
-### Manual Start
-
-If the one-click launcher does not work, run this in Terminal or Command Prompt:
-
-~~~bash
-python sql_tutorial_server.py
-~~~
-
-Then open:
-
-~~~text
-http://127.0.0.1:8765
-~~~
-
-Do not open the site directly with file:///.../sql_tutorial.html. You can read the content that way, but live SQL execution will not work.
-
-## Connect to Supabase
-
-1. In your Supabase project, click **Connect** at the top of the page.
-
-   <img src="assets/01-open-supabase-connect.png" alt="Supabase project page with the Connect button highlighted" width="900">
-
-2. Choose **Direct connection**, then select **Session pooler** and keep the URL connection type. The website uses port **5432**.
-
-   <img src="assets/02-select-session-pooler.png" alt="Supabase Connect dialog showing the Session pooler option" width="900">
-
-3. Copy the full connection string shown under **Connection string**.
-
-   <img src="assets/03-copy-session-pooler-url.png" alt="Supabase Session pooler connection string ready to copy" width="900">
-
-4. Open **Connect your Supabase database** in the website sidebar.
-5. Paste the copied URL into **Session pooler URL**.
-6. Enter the real database password in **Database password**.
-7. Click **Test connection**.
-8. A green **Connected to Supabase** status confirms that the local website can run queries against your database.
-
-   <img src="assets/04-successful-connection.png" alt="SQL Tutorial sidebar showing the successful Connected to Supabase status" width="432">
-
-You may leave Supabase's displayed [YOUR-PASSWORD] placeholder in the copied URL:
-
-~~~text
-postgresql://postgres.PROJECT_REF:[YOUR-PASSWORD]@POOLER_HOST:5432/postgres
-~~~
-
-The website automatically handles that display-only placeholder. Your real password is used only in the local password field; it is not stored in the HTML or URL.
-
-> Copy the complete host from **Connect → Session pooler**. Do not guess a pooler host from the region, such as aws-0-..., because the pooler index can differ.
-
-### Course Demo Connection (Fallback)
-
-If you cannot connect to your own Supabase project during the class, you may use the course demo Session pooler URL below. Ask a TA for the current password; do not put a password in this README, GitHub, or a shared document.
-
-~~~text
-postgresql://postgres.zwvlipptpuwndregtgzv:[YOUR-PASSWORD]@aws-0-ca-central-1.pooler.supabase.com:5432/postgres
-~~~
-
-Paste the URL as shown into **Session pooler URL**, then enter the password provided by the TA in the separate **Database password** field.
-
-## Run SQL
-
-After connecting:
-
-1. Click **Show SQL** on any SQL block.
-2. Click **Run SQL** in the top-right corner of that block.
-3. The result appears directly below the block.
-
-To protect the database, the local server accepts only:
-
-- SELECT
-- WITH
-- EXPLAIN
-
-It rejects INSERT, UPDATE, DELETE, CREATE, DROP, and other write or structure-changing commands.
-
-## Mini-Test
-
-Every Mini-Test question has a **Try your SQL** editor:
-
-1. Read the question.
-2. Write your own read-only SQL.
-3. Click **Run my SQL**.
-4. Inspect the result before opening a Hint or Solution.
-
-## Appendix: Table Management
-
-The Appendix includes copyable reference SQL for:
-
-- CREATE TABLE
-- INSERT
-- SELECT
-- UPDATE
-- DELETE
-- DROP TABLE
-
-All examples use sql_practice and do not modify Olist tables. The Appendix provides **Copy SQL** only, not a website execution button. Paste commands into your own Supabase SQL Editor and verify the table name and WHERE clause first.
-
-## Security
-
-- The website server listens only on local address 127.0.0.1.
-- Passwords remain only in the local server process memory and are never written to disk.
-- Website queries run in a read-only transaction.
-- Do not put real Supabase passwords in an HTML file, GitHub repository, or chat message.
-- If a password was exposed, reset the database password in Supabase immediately.
+The local server permits only `SELECT`, `WITH`, and `EXPLAIN`; all write and schema-changing statements are rejected. The Appendix examples are intentionally copy-only.
 
 ## Troubleshooting
 
-### Failed to fetch
+| Problem | Check |
+| --- | --- |
+| `Failed to fetch` | The local server is running and you opened `http://127.0.0.1:8765`, not a `file:///` URL. |
+| URL/host error | Re-copy **Connect → Session pooler** URL on port 5432 without editing it. |
+| Cannot connect | Confirm the Supabase project is active, then re-enter the database password. |
+| Site is not connected | Select **Test connection** before running SQL. |
 
-The website cannot reach the local server.
+Visit <http://127.0.0.1:8765/api/health> to confirm that the local server is available. If diagrams fail to load, force-refresh the page.
 
-- Confirm that the server window is still open.
-- Confirm that the browser address is http://127.0.0.1:8765.
-- Confirm that the site was not opened through file:///.
-- Open http://127.0.0.1:8765/api/health in your browser. A working server returns JSON.
+## Security
 
-### IPv4 / IPv6 URL format error
+The server listens only on `127.0.0.1`; passwords stay in its memory and are not written to disk. Reset a Supabase password immediately if it is exposed.
 
-Restart the local server, then paste the Session pooler URL copied from Supabase without editing it. The current server automatically handles [YOUR-PASSWORD].
+## Project files
 
-### Host cannot be resolved or connection failed
-
-Confirm that the URL was copied from **Connect → Session pooler → port 5432**, rather than built manually. Check that the Supabase project is active and your network can reach Supabase.
-
-### Mermaid syntax error on the website
-
-Refresh the page. On macOS, use Command + Shift + R to force-refresh cached CDN resources.
+| File | Purpose |
+| --- | --- |
+| `sql_tutorial.html` | Tutorial frontend |
+| `sql_tutorial_server.py` | Local read-only query server |
+| `SUPABASE_SETUP_README.md` | Supabase and dataset setup |
+| `requirements.txt` | Python dependencies |

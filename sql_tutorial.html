@@ -13,10 +13,12 @@
     :root { --mint:#7A6652; --ink:#FAF7F0; --panel:#EFE7DA; --muted:#38332E; --gold:#B7794A; --blue:#A8947C; }
     html { scroll-behavior:smooth; }
     body { margin:0; overflow-y:auto; background:var(--ink); color:var(--muted); font-family:Inter, ui-sans-serif, system-ui, sans-serif; }
-    #content { margin-left:270px; width:calc(100% - 270px); box-sizing:border-box; padding:52px clamp(24px, 5vw, 92px) 90px; }
-    #content > section { max-width:1120px; margin:0 auto 46px; padding:34px; background:rgba(255,253,248,.58); border:1px solid #ded1c0; border-radius:18px; scroll-margin-top:24px; }
+    #content { margin-left:270px; width:calc(100% - 270px); box-sizing:border-box; padding:clamp(36px, 4vw, 72px) clamp(24px, 4vw, 96px) 90px; }
+    #content > section { width:100%; max-width:none; box-sizing:border-box; margin:0 auto clamp(30px, 3vw, 46px); padding:clamp(28px, 2.5vw, 46px); background:rgba(255,253,248,.58); border:1px solid #ded1c0; border-radius:18px; scroll-margin-top:24px; }
     #content h1, #content h2, #content h3 { color: var(--mint); text-transform: none; letter-spacing: -.03em; }
     #content h1 { font-size: 3rem; } #content h2 { font-size: 2rem; } #content h3 { font-size: 1.35rem; }
+    #content > section > .eyebrow { margin:0 0 .2em; font-size:1.45rem; letter-spacing:.08em; }
+    #content > section > .eyebrow + h2 { margin:.1em 0 .8em; font-size:1.3rem; }
     #content p, #content li { line-height: 1.6; } #content ul { margin-top: .3em; }
     .eyebrow { color:var(--gold); font-size:.58em; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
     .part { border: 3px solid var(--mint); padding: 1.2em; border-radius: .6em; background: radial-gradient(circle at top right,#fffdf8,transparent 42%), var(--panel); }
@@ -60,7 +62,9 @@
     #content .copy-code { position:absolute; right:11px; top:6px; border:1px solid #EFE7DA; border-radius:6px; padding:5px 9px; background:#FAF7F0; color:var(--mint); font:700 .68rem/1 Inter, ui-sans-serif, system-ui, sans-serif; cursor:pointer; }
     #content .copy-code:hover { background:var(--panel); }
     .buttons { display:flex; gap:.35em; flex-wrap:wrap; justify-content:center; margin:.45em 0; }
+    .buttons.lesson-actions { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:.65em; margin:1em 0; }
     button.toggle { background:var(--mint); color:#fffdf8; border:0; border-radius:999px; padding:.45em .8em; font-size:.57em; font-weight:800; cursor:pointer; }
+    .lesson-actions button.toggle { min-height:42px; border-radius:8px; padding:.7em .9em; font-size:.82rem; }
     button.toggle:hover { background:var(--gold); transform:translateY(-2px); }
     [hidden] { display:none !important; }
     .compare { display:grid; grid-template-columns:1fr 1fr; gap:.65em; text-align:left; font-size:.68em; }
@@ -115,6 +119,9 @@
       #content > section { padding:22px; border-radius:14px; }
       .resource-grid { grid-template-columns:1fr; }
       .code-pair { grid-template-columns:1fr; }
+    }
+    @media (max-width: 560px) {
+      .buttons.lesson-actions { grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -480,6 +487,7 @@ WHERE total_revenue > (
     ) AS all_state_revenue
 )
 ORDER BY total_revenue DESC;</code></pre>
+    <div id="nocte-explain" hidden class="explain">Without a CTE, the state-revenue calculation appears twice: once for the final result and once to calculate the average benchmark. A CTE lets the query name that shared intermediate result.</div>
   </section>
 
   <section>
@@ -589,14 +597,14 @@ FROM countdown;</code></pre>
     <h2>Mini-Test 1 — Basic</h2>
     <div class="mini"><strong>Question:</strong> Return exactly 5 rows. Each row must show a state code and the number of customers in that state. Sort from the largest customer count to the smallest.<br><br><strong>Expected output:</strong> customer_state, customer_count.</div>
     <div class="practice-runner" data-answer-id="m1-solution">
-      <h3>Try your SQL</h3>
+      <h3>Try SQL</h3>
       <p>Write a read-only query, then run it before revealing the hint or solution.</p>
       <textarea class="practice-sql" aria-label="Mini-Test 1 SQL" placeholder="Write your SQL here..."></textarea>
       <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m1-hint">Show hint</button><button class="toggle" data-target="m1-solution">Show solution</button></div>
+    <div class="buttons"><button class="toggle" data-target="m1-hint">Explain</button><button class="toggle" data-target="m1-solution">Show Answers</button></div>
     <div id="m1-hint" hidden class="explain">Think: one result per state, a count, descending order, and five rows.
       <div class="visual-hint" aria-label="Mini-Test 1 query plan"><div class="visual-card"><strong>customers</strong>Many customer rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>GROUP BY</strong>One group per state</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT + TOP 5</strong>Largest five groups</div></div>
     </div>
@@ -613,14 +621,14 @@ LIMIT 5;</code></pre>
     <h2>Mini-Test 2 — JOIN</h2>
     <div class="mini"><strong>Question:</strong> Return exactly 5 rows. Each row must show a customer state and its total revenue, defined as the sum of order_items.price for purchases by customers in that state. Do not include freight.</div>
     <div class="practice-runner" data-answer-id="m2-solution">
-      <h3>Try your SQL</h3>
+      <h3>Try SQL</h3>
       <p>Use the Olist tables from the schema diagram. Run your own read-only query here.</p>
       <textarea class="practice-sql" aria-label="Mini-Test 2 SQL" placeholder="Write your SQL here..."></textarea>
       <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m2-hint">Show hint</button><button class="toggle" data-target="m2-solution">Show solution</button></div>
+    <div class="buttons"><button class="toggle" data-target="m2-hint">Explain</button><button class="toggle" data-target="m2-solution">Show Answers</button></div>
     <div id="m2-hint" hidden class="explain">Find the state, the customer-order link, and the item price before writing the aggregation.
       <div class="visual-hint" aria-label="Mini-Test 2 join and aggregation plan"><div class="visual-card"><strong>customers</strong><span class="visual-pill">state</span></div><div class="visual-arrow">customer_id</div><div class="visual-card"><strong>orders</strong><span class="visual-pill">order_id</span></div><div class="visual-arrow">order_id</div><div class="visual-card"><strong>order_items</strong><span class="visual-pill">price</span><br>SUM per state</div></div>
     </div>
@@ -640,14 +648,14 @@ LIMIT 5;</code></pre>
     <div class="mini"><strong>Question:</strong> Treat each row in <code>orders</code> as one transaction. For every <code>customer_unique_id</code>, return that customer’s third chronological order.<br><br><strong>Output:</strong> customer_unique_id, order_id, and order_purchase_timestamp. Exclude customers with fewer than three orders. If timestamps tie, order by order_id.</div>
     <p class="source-note"><strong>Interview source:</strong> Adapted for the Olist dataset from DataLemur’s <a href="https://datalemur.com/questions/sql-third-transaction" target="_blank" rel="noopener noreferrer">User’s Third Transaction — Uber, Medium</a>.</p>
     <div class="practice-runner" data-answer-id="m3-solution">
-      <h3>Try your SQL</h3>
+      <h3>Try SQL</h3>
       <p>This follows the source question’s small, direct output: one third transaction per qualifying customer.</p>
       <textarea class="practice-sql" aria-label="Mini-Test 3 SQL" placeholder="Write your SQL here..."></textarea>
       <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m3-hint">Show hints</button><button class="toggle" data-target="m3-solution">Show solution</button></div>
+    <div class="buttons"><button class="toggle" data-target="m3-hint">Explain</button><button class="toggle" data-target="m3-solution">Show Answers</button></div>
     <div id="m3-hint" hidden class="explain">Use <code>ROW_NUMBER()</code> partitioned by <code>customer_unique_id</code>, ordered by order timestamp and order ID. Then keep row number 3.
       <div class="visual-table" aria-label="Mini-Test 3 row numbering example"><span class="head">customer A order</span><span class="head">ROW_NUMBER()</span><span>2022-01-08</span><span>1</span><span>2022-01-10</span><span>2</span><span class="keep">2022-02-05</span><span class="keep">3 — keep</span></div>
     </div>
@@ -678,14 +686,14 @@ ORDER BY order_purchase_timestamp, order_id;</code></pre>
     <div class="mini"><strong>Question:</strong> For orders placed in 2018, calculate the total number of orders for each month.<br><br><strong>Output:</strong> order_month and order_count. Sort from the earliest month to the latest.</div>
     <p class="source-note"><strong>Interview source:</strong> Simplified Olist monthly-performance adaptation inspired by DataLemur’s <a href="https://datalemur.com/blog/apple-sql-interview-questions" target="_blank" rel="noopener noreferrer">Apple SQL interview questions</a>. This version uses the available <code>orders</code> table.</p>
     <div class="practice-runner" data-answer-id="m4-solution">
-      <h3>Try your SQL</h3>
+      <h3>Try SQL</h3>
       <p>Focus on one simple summary per month: filter, group, count, and sort.</p>
       <textarea class="practice-sql" aria-label="Mini-Test 4 SQL" placeholder="Write your SQL here..."></textarea>
       <div class="buttons"><button class="toggle run-practice" type="button">Run my SQL</button></div>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m4-hint">Show hint</button><button class="toggle" data-target="m4-solution">Show solution</button></div>
+    <div class="buttons"><button class="toggle" data-target="m4-hint">Explain</button><button class="toggle" data-target="m4-solution">Show Answers</button></div>
     <div id="m4-hint" hidden class="explain">Use <code>DATE_TRUNC('month', order_purchase_timestamp)</code> to create the month, then use <code>COUNT(*)</code>.
       <div class="visual-hint" aria-label="Mini-Test 4 monthly count plan"><div class="visual-card"><strong>orders</strong>2018-03-04<br>2018-03-19<br>2018-04-02</div><div class="visual-arrow">→</div><div class="visual-card"><strong>DATE_TRUNC</strong>2018-03<br>2018-03<br>2018-04</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT</strong>2018-03 → 2<br>2018-04 → 1</div></div>
     </div>
@@ -1035,11 +1043,39 @@ LIMIT 5;</code></pre>
       if (heading) heading.insertAdjacentElement('afterend', controls);
       else section.appendChild(controls);
     }
+    var explanationTargets = Array.prototype.filter.call(section.children, function(element) {
+      return element.id && element.classList.contains('explain');
+    });
+    var answerTargets = Array.prototype.filter.call(section.children, function(element) {
+      return element.id && (element.matches('pre') || element.classList.contains('result'));
+    });
+    function addLessonToggle(label, targets) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'toggle';
+      button.textContent = label;
+      button.addEventListener('click', function() {
+        var shouldShow = targets.some(function(target) { return target.hidden; });
+        targets.forEach(function(target) {
+          target.hidden = !shouldShow;
+          var queryResult = target.nextElementSibling;
+          if (!shouldShow && queryResult && queryResult.classList.contains('inline-query-result')) queryResult.hidden = true;
+        });
+        button.textContent = shouldShow
+          ? (label === 'Show Answers' ? 'Hide Answers' : 'Hide ' + label)
+          : label;
+      });
+      controls.appendChild(button);
+    }
+    controls.replaceChildren();
+    controls.classList.add('lesson-actions');
     var togglePractice = document.createElement('button');
     togglePractice.type = 'button';
     togglePractice.className = 'toggle';
-    togglePractice.textContent = 'Try your SQL';
+    togglePractice.textContent = 'Try SQL';
     controls.appendChild(togglePractice);
+    addLessonToggle('Explain', explanationTargets);
+    addLessonToggle('Show Answers', answerTargets);
 
     var practice = document.createElement('div');
     practice.className = 'practice-runner lesson-practice';
@@ -1072,7 +1108,7 @@ LIMIT 5;</code></pre>
     editor.addEventListener('input', function() { autoExpandSqlEditor(editor); });
     togglePractice.addEventListener('click', function() {
       practice.hidden = !practice.hidden;
-      togglePractice.textContent = practice.hidden ? 'Try your SQL' : 'Hide Try your SQL';
+      togglePractice.textContent = practice.hidden ? 'Try SQL' : 'Hide Try SQL';
       if (!practice.hidden) {
         autoExpandSqlEditor(editor);
         editor.focus();

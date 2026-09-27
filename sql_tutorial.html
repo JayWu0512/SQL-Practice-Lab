@@ -22,11 +22,16 @@
     #content p, #content li { line-height: 1.6; } #content ul { margin-top: .3em; }
     .eyebrow { color:var(--gold); font-size:.58em; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
     .part { border: 3px solid var(--mint); padding: 1.2em; border-radius: .6em; background: radial-gradient(circle at top right,#fffdf8,transparent 42%), var(--panel); }
-    .case { text-align:left; background:var(--panel); border-left:10px solid var(--gold); padding:.65em .85em; border-radius:.25em; margin:.55em 0; font-size:.75em; }
+    .case { text-align:left; background:var(--panel); border-left:10px solid var(--gold); padding:.9rem 1.05rem; border-radius:.25em; margin:.75rem 0; font-size:clamp(1rem, .95rem + .2vw, 1.08rem); line-height:1.7; }
     .case strong { color:var(--gold); }
-    .why, .result, .explain { text-align:left; background:#fffdf8; border-radius:.35em; padding:.55em .8em; margin:.45em 0; font-size:.7em; }
+    .result, .explain { text-align:left; background:#fffdf8; border-radius:.35em; padding:.55em .8em; margin:.45em 0; font-size:.7em; }
     .result { border:1px solid var(--mint); } .explain { border:1px solid var(--blue); }
     .result strong, .explain strong { color:var(--mint); }
+    .task-breakdown { width:100%; margin:.55rem 0 .8rem; border-collapse:collapse; table-layout:fixed; font-size:.9rem; line-height:1.5; }
+    .task-breakdown th, .task-breakdown td { padding:.55rem .65rem !important; border:1px solid #d8cab8; vertical-align:top; text-align:left; overflow-wrap:anywhere; }
+    .task-breakdown th { background:var(--mint); color:var(--ink); font-weight:800; }
+    .task-breakdown th:nth-child(1) { width:34%; }
+    .task-breakdown th:nth-child(2) { width:37%; }
     .visual-hint { display:flex; align-items:stretch; gap:.45em; margin-top:.7em; overflow-x:auto; padding-bottom:.15em; }
     .visual-card { flex:1 0 125px; min-width:125px; padding:.55em .65em; border:1px solid #d8cab8; border-radius:8px; background:var(--panel); }
     .visual-card strong { display:block; margin-bottom:.22em; color:var(--mint); }
@@ -72,11 +77,20 @@
     .tag { display:inline-block; padding:.15em .5em; border-radius:99px; font-size:.6em; background:#ded1c0; color:var(--muted); }
     .mermaid { background:#fffdf8; border-radius:.35em; padding:.35em; margin:.3em auto; max-height:390px; }
     .roadmap .mermaid { margin:.7em 0 0; padding:.75em .35em; }
-    .mini { text-align:left; background:var(--panel); border:1px solid var(--blue); padding:.75em; border-radius:.4em; font-size:.75em; }
+    .mini { text-align:left; background:var(--panel); border:1px solid var(--blue); padding:1rem 1.1rem; border-radius:.4em; font-size:clamp(1rem, .95rem + .2vw, 1.08rem); line-height:1.7; }
     .source-note { margin:.55em 0 0; color:var(--muted); font-size:.82em; line-height:1.45; }
     .source-note a { color:var(--mint); font-weight:700; }
     .answer { border-top:2px dashed var(--mint); margin-top:.6em; padding-top:.5em; }
     table { font-size:.62em; margin:auto; } th { color:var(--mint); } td,th { padding:.35em .55em !important; }
+    .decision-guide { width:min(100%, 900px); margin:1.25rem auto; border-collapse:separate; border-spacing:0; font-size:clamp(1rem, .94rem + .25vw, 1.12rem); line-height:1.5; }
+    .decision-guide th, .decision-guide td { padding:.75rem 1rem !important; border:1px solid #d8cab8; text-align:left; vertical-align:middle; }
+    .decision-guide th { background:var(--mint); color:var(--ink); font-weight:800; }
+    .decision-guide th:first-child { border-radius:10px 0 0 0; }
+    .decision-guide th:last-child { border-radius:0 10px 0 0; }
+    .decision-guide td { background:#fffdf8; }
+    .decision-guide td:last-child { color:var(--mint); font-weight:800; }
+    .decision-guide tr:last-child td:first-child { border-radius:0 0 0 10px; }
+    .decision-guide tr:last-child td:last-child { border-radius:0 0 10px 0; }
     .footer-note { font-size:.5em; color:var(--muted); }
     #db-settings { margin:8px 4px 14px; padding:9px; border:1px solid var(--blue); border-radius:8px; background:#fffdf8; }
     #db-settings summary { cursor:pointer; color:var(--mint); font-size:13px; font-weight:800; }
@@ -216,28 +230,23 @@
   <section>
     <p class="eyebrow">SELECT</p><h2>Choose the information you need</h2>
     <div class="case"><strong>Scenario:</strong> A regional marketing analyst is preparing a small address-targeting sample.<br><br><strong>Task:</strong> Produce a 20-row customer-location list. Each row must contain exactly customer_id, customer_city, and customer_state.</div>
-    <div class="why fragment"><strong>What is missing without SELECT?</strong><br>SELECT * returns every column. It is useful for quick exploration, but a final report should show only the fields the analyst needs.</div>
-    <div class="buttons"><button class="toggle" data-target="select-sql">Show SQL</button><button class="toggle" data-target="select-star">Show original quick exploration</button><button class="toggle" data-target="select-explain">Explain</button><button class="toggle" data-target="select-result">Show result shape</button></div>
+    <div class="buttons"><button class="toggle" data-target="select-sql">Show SQL</button><button class="toggle" data-target="select-explain">Explain</button></div>
     <pre id="select-sql" hidden><code class="language-sql">SELECT
     customer_id,
     customer_city,
     customer_state
 FROM customers
 LIMIT 20;</code></pre>
-    <pre id="select-star" hidden><code class="language-sql">SELECT *
-FROM customers
-LIMIT 10;</code></pre>
-    <div id="select-explain" hidden class="explain"><strong>What SQL does:</strong> chooses three columns from customers and returns at most 20 rows.
+    <div id="select-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“customer-location list”</td><td>Start from the customer records.</td><td><code>FROM customers</code></td></tr><tr><td>“exactly customer_id, customer_city, and customer_state”</td><td>Return only these three fields, not every column.</td><td>List the columns in <code>SELECT</code>; do not use <code>SELECT *</code>.</td></tr><tr><td>“20-row”</td><td>Keep the output to 20 rows.</td><td><code>LIMIT 20</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="SELECT keeps only needed columns"><div class="visual-card"><strong>customers</strong>customer_id<br>customer_city<br>customer_state<br>zip_code_prefix</div><div class="visual-arrow">→</div><div class="visual-card"><strong>SELECT output</strong>customer_id<br>customer_city<br>customer_state</div></div>
     </div>
-    <div id="select-result" hidden class="result"><strong>Expected columns:</strong> customer_id | customer_city | customer_state<br>Run the original query against Supabase to see the actual 20 rows.</div>
   </section>
 
   <section>
     <p class="eyebrow">WHERE</p><h2>Choose the rows you need</h2>
     <div class="case"><strong>Scenario:</strong> The São Paulo regional manager wants to review customers served by that state only.<br><br><strong>Task:</strong> Show up to 20 customers whose state is São Paulo (SP). No other states should appear.</div>
-    <div class="why fragment"><strong>Without WHERE:</strong> the report includes customers from every state, so it cannot answer the manager’s regional question.</div>
-    <div class="buttons"><button class="toggle" data-target="where-sql">Show SQL</button><button class="toggle" data-target="where-and">Show original AND example</button><button class="toggle" data-target="where-explain">Explain</button><button class="toggle" data-target="where-result">Show result shape</button></div>
+    <div class="buttons"><button class="toggle" data-target="where-sql">Show SQL</button><button class="toggle" data-target="where-explain">Explain</button></div>
     <pre id="where-sql" hidden><code class="language-sql">SELECT
     customer_id,
     customer_city,
@@ -245,18 +254,10 @@ LIMIT 10;</code></pre>
 FROM customers
 WHERE customer_state = 'SP'
 LIMIT 20;</code></pre>
-    <pre id="where-and" hidden><code class="language-sql">SELECT
-    customer_id,
-    customer_city,
-    customer_state
-FROM customers
-WHERE customer_state = 'SP'
-  AND customer_city = 'sao paulo'
-LIMIT 20;</code></pre>
-    <div id="where-explain" hidden class="explain"><strong>What SQL does:</strong> keeps only rows where customer_state is SP. Add AND when every condition must be true; use OR when either condition may be true.
+    <div id="where-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“customers whose state is São Paulo (SP)”</td><td>Keep only records whose state code is SP.</td><td><code>WHERE customer_state = 'SP'</code></td></tr><tr><td>“No other states should appear”</td><td>The condition must exclude every non-SP row.</td><td>Use <code>WHERE</code>, not only <code>SELECT</code>.</td></tr><tr><td>“up to 20 customers”</td><td>Stop after at most 20 matching rows.</td><td><code>LIMIT 20</code></td></tr></tbody></table>
       <div class="visual-table" aria-label="WHERE filter example"><span class="head">customer_state</span><span class="head">Keep?</span><span class="keep">SP</span><span class="keep">Yes</span><span class="drop">RJ</span><span class="drop">No</span><span class="drop">MG</span><span class="drop">No</span></div>
     </div>
-    <div id="where-result" hidden class="result"><strong>Expected rule:</strong> every returned row has customer_state = SP.</div>
   </section>
 
   <section>
@@ -275,25 +276,25 @@ FROM products
 WHERE product_weight_g IS NOT NULL
 ORDER BY product_weight_g DESC
 LIMIT 10;</code></pre>
-    <div id="distinct-explain" hidden class="explain"><strong>Task A:</strong> DISTINCT removes repeated state values, then ORDER BY alphabetizes the remaining list. <strong>Task B:</strong> WHERE removes unknown weights, ORDER BY ranks the remaining products, and LIMIT keeps only the first 10.
+    <div id="distinct-explain" hidden class="explain"><strong>Break each task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>Task A: “every state code … no duplicates”</td><td>Each state code appears once even if many customers share it.</td><td><code>DISTINCT customer_state</code></td></tr><tr><td>Task A: “alphabetized”</td><td>Sort the unique state codes A–Z.</td><td><code>ORDER BY customer_state</code></td></tr><tr><td>Task B: “known weight”</td><td>Exclude products whose weight is missing.</td><td><code>WHERE product_weight_g IS NOT NULL</code></td></tr><tr><td>Task B: “heaviest to lightest”</td><td>Rank largest weights first.</td><td><code>ORDER BY product_weight_g DESC</code></td></tr><tr><td>Task B: “exactly 10 products”</td><td>Keep the first 10 after sorting.</td><td><code>LIMIT 10</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="Distinct and ranking process"><div class="visual-card"><strong>DISTINCT</strong>SP, SP, RJ<br>→ SP, RJ</div><div class="visual-arrow">→</div><div class="visual-card"><strong>ORDER BY DESC</strong>900 g<br>650 g<br>420 g</div><div class="visual-arrow">→</div><div class="visual-card"><strong>LIMIT 10</strong>Keep the top 10<br>heaviest products</div></div>
     </div>
   </section>
 
   <section>
     <p class="eyebrow">AGGREGATES</p><h2>Summarize many rows</h2>
-    <div class="case"><strong>Scenario:</strong> Before planning next quarter’s outreach budget, the marketing director asks how many customer records the company has.<br><br><strong>Task:</strong> Return one number named total_customers that counts every row in customers.</div>
+    <div class="case"><strong>Scenario:</strong> Before planning next quarter’s product strategy, the merchandising director needs a quick summary of order-item prices.<br><br><strong>Task:</strong> Return total item revenue, average item price, minimum item price, and maximum item price from <code>order_items.price</code>. Name the columns total_item_revenue, avg_item_price, min_item_price, and max_item_price. Round the total and average to two decimal places.</div>
     <div class="fragment compare"><div><span class="tag">COUNT</span><br>How many?</div><div><span class="tag">SUM</span><br>How much in total?</div><div><span class="tag">AVG</span><br>What is typical?</div><div><span class="tag">MIN / MAX</span><br>What are the extremes?</div></div>
-    <div class="buttons"><button class="toggle" data-target="count-sql">Show COUNT SQL</button><button class="toggle" data-target="stats-sql">Show price-summary SQL</button><button class="toggle" data-target="aggregate-explain">Explain</button></div>
-    <pre id="count-sql" hidden><code class="language-sql">SELECT COUNT(*) AS total_customers
-FROM customers;</code></pre>
+    <div class="buttons"><button class="toggle" data-target="stats-sql">Show SQL</button><button class="toggle" data-target="aggregate-explain">Explain</button></div>
     <pre id="stats-sql" hidden><code class="language-sql">SELECT
     ROUND(SUM(price)::numeric, 2) AS total_item_revenue,
     ROUND(AVG(price)::numeric, 2) AS avg_item_price,
     MIN(price) AS min_item_price,
     MAX(price) AS max_item_price
 FROM order_items;</code></pre>
-    <div id="aggregate-explain" hidden class="explain">Aggregate functions collapse many input rows into one summary result. No <code>GROUP BY</code> means one summary for the entire table.
+    <div id="aggregate-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“total item revenue”</td><td>Add every order-item price.</td><td><code>SUM(price) AS total_item_revenue</code></td></tr><tr><td>“average item price”</td><td>Calculate the mean of all item prices.</td><td><code>AVG(price) AS avg_item_price</code></td></tr><tr><td>“minimum” and “maximum item price”</td><td>Find the smallest and largest item prices.</td><td><code>MIN(price)</code> and <code>MAX(price)</code></td></tr><tr><td>“Round the total and average to two decimal places”</td><td>Format those two calculated values to two decimals.</td><td><code>ROUND(...::numeric, 2)</code></td></tr><tr><td>One overall summary</td><td>Return one row for the entire <code>order_items</code> table, not one row per category.</td><td>Use no <code>GROUP BY</code>.</td></tr></tbody></table>
       <div class="visual-hint" aria-label="Aggregate summary example"><div class="visual-card"><strong>Input prices</strong>20<br>50<br>80</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Summary</strong>COUNT = 3<br>SUM = 150<br>AVG = 50</div></div>
     </div>
   </section>
@@ -310,7 +311,8 @@ FROM customers
     GROUP BY customer_state
 ORDER BY customer_count DESC;</code></pre>
     <div id="group-result" hidden class="result"><strong>Expected columns:</strong> customer_state | customer_count<br>Each state becomes one output row.</div>
-    <div id="group-explain" hidden class="explain">GROUP BY splits the input into state groups; COUNT then calculates one number inside each group.
+    <div id="group-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“one row for every customer_state”</td><td>Make a separate result for each state.</td><td><code>GROUP BY customer_state</code></td></tr><tr><td>“that state’s customer count”</td><td>Count the customer rows inside each state group.</td><td><code>COUNT(*) AS customer_count</code></td></tr><tr><td>“largest count first”</td><td>Rank the grouped counts from high to low.</td><td><code>ORDER BY customer_count DESC</code></td></tr></tbody></table>
       <div class="visual-table" aria-label="Group by state example"><span class="head">Input state</span><span class="head">Grouped output</span><span>SP, SP, SP</span><span>SP → 3</span><span>RJ, RJ</span><span>RJ → 2</span><span>MG</span><span>MG → 1</span></div>
     </div>
   </section>
@@ -321,7 +323,6 @@ ORDER BY customer_count DESC;</code></pre>
     <pre class="mermaid">flowchart LR
       customer_table["customers"] --> order_table["orders"]</pre>
     <p class="footer-note">Match the tables with customers.customer_id → orders.customer_id.</p>
-    <div class="why fragment"><strong>Without JOIN:</strong> customer location and order status live in separate tables. Manual ID matching would be repetitive and error-prone.</div>
     <div class="buttons"><button class="toggle" data-target="join-sql">Show original JOIN SQL</button><button class="toggle" data-target="join-explain">Explain keys</button></div>
     <pre id="join-sql" hidden><code class="language-sql">SELECT
     c.customer_id,
@@ -333,7 +334,8 @@ FROM customers AS c
 JOIN orders AS o
     ON c.customer_id = o.customer_id
 LIMIT 20;</code></pre>
-    <div id="join-explain" hidden class="explain"><strong>What SQL does:</strong> c and o are aliases. The ON clause tells SQL which customer_id values describe the same customer-order relationship.
+    <div id="join-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“customer ID, city, state”</td><td>Get location fields from <code>customers</code>.</td><td><code>FROM customers AS c</code></td></tr><tr><td>“order ID, and order status”</td><td>Also get fields from the separate <code>orders</code> table.</td><td><code>JOIN orders AS o</code></td></tr><tr><td>“customer’s location beside each order”</td><td>Match each order to its owning customer.</td><td><code>ON c.customer_id = o.customer_id</code></td></tr><tr><td>“20-row report”</td><td>Return only 20 joined rows.</td><td><code>LIMIT 20</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="JOIN key matching"><div class="visual-card"><strong>customers AS c</strong>customer_id = A1<br>city = São Paulo</div><div class="visual-arrow">A1 = A1</div><div class="visual-card"><strong>orders AS o</strong>customer_id = A1<br>order_status = delivered</div></div>
     </div>
   </section>
@@ -370,7 +372,8 @@ JOIN order_items AS oi
 JOIN products AS p
     ON oi.product_id = p.product_id
 LIMIT 20;</code></pre>
-    <div id="multi-explain" hidden class="explain">Each JOIN follows one key. Start at the table containing the requested customer state, travel through orders, then reach item price or product category.
+    <div id="multi-explain" hidden class="explain"><strong>Break the requested fields into a table path:</strong>
+      <table class="task-breakdown"><thead><tr><th>Requested field</th><th>Where it lives / what connects it</th><th>SQL choice</th></tr></thead><tbody><tr><td>customer state</td><td><code>customers</code> is the starting table.</td><td><code>FROM customers AS c</code></td></tr><tr><td>order ID</td><td>Reach <code>orders</code> through the shared customer ID.</td><td><code>JOIN orders AS o ON c.customer_id = o.customer_id</code></td></tr><tr><td>item price or product ID</td><td>Reach <code>order_items</code> through the order ID.</td><td><code>JOIN order_items AS oi ON o.order_id = oi.order_id</code></td></tr><tr><td>product category</td><td>Reach <code>products</code> through the product ID.</td><td><code>JOIN products AS p ON oi.product_id = p.product_id</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="Multi-table join path"><div class="visual-card"><strong>customers</strong>customer_state</div><div class="visual-arrow">customer_id</div><div class="visual-card"><strong>orders</strong>order_id</div><div class="visual-arrow">order_id</div><div class="visual-card"><strong>order_items</strong>price<br>product_id</div><div class="visual-arrow">product_id</div><div class="visual-card"><strong>products</strong>category</div></div>
     </div>
   </section>
@@ -406,7 +409,8 @@ WHERE customer_id IN (
     WHERE oi.price &gt; 1000
 )
 LIMIT 20;</code></pre>
-    <div id="sub-explain" hidden class="explain"><strong>Inner query:</strong> calculates the average price once. <strong>Outer query:</strong> keeps only rows above that benchmark.
+    <div id="sub-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“above the company’s average order-item price”</td><td>First calculate one benchmark from all item prices.</td><td>Inner query: <code>SELECT AVG(price) FROM order_items</code></td></tr><tr><td>“above-average order items”</td><td>Compare each item price with that one benchmark.</td><td><code>WHERE price &gt; (subquery)</code></td></tr><tr><td>“sorted by price descending”</td><td>Show the most expensive qualifying item first.</td><td><code>ORDER BY price DESC</code></td></tr><tr><td>“up to 20”</td><td>Keep only the first 20 after sorting.</td><td><code>LIMIT 20</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="Subquery process"><div class="visual-card"><strong>Step 1</strong>AVG(price)<br><span class="visual-pill">100</span></div><div class="visual-arrow">→</div><div class="visual-card"><strong>Step 2</strong>Keep price &gt; 100<br><span class="visual-pill">150</span> <span class="visual-pill">220</span></div></div>
     </div>
   </section>
@@ -430,14 +434,15 @@ JOIN order_items AS oi
 GROUP BY c.customer_state
 ORDER BY total_revenue DESC;</code></pre>
     <div id="revenue-result" hidden class="result"><strong>Expected columns:</strong> customer_state | total_revenue. One row represents every qualifying purchase for one state.</div>
-    <div id="revenue-explain" hidden class="explain">This combines a JOIN with a grouped aggregate: connect each item price to its customer state, add prices within each state, then rank states by the total.
+    <div id="revenue-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“one row per customer state”</td><td>Make one group for each state.</td><td><code>GROUP BY c.customer_state</code></td></tr><tr><td>“total_revenue” and “sum of order_items.price”</td><td>Add item prices inside each state group and name the column.</td><td><code>SUM(oi.price) AS total_revenue</code></td></tr><tr><td>“purchases by customers in that state”</td><td>Connect state to orders, then orders to item prices.</td><td>Join <code>customers → orders → order_items</code>.</td></tr><tr><td>“Do not include freight”</td><td>Use item <code>price</code> only; do not add a freight column.</td><td>Do not select or sum <code>freight_value</code>.</td></tr><tr><td>“highest to lowest”</td><td>Rank state totals descending.</td><td><code>ORDER BY total_revenue DESC</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="State revenue calculation"><div class="visual-card"><strong>Joined rows</strong>SP → 20<br>SP → 30<br>RJ → 40</div><div class="visual-arrow">→</div><div class="visual-card"><strong>SUM by state</strong>SP → 50<br>RJ → 40</div><div class="visual-arrow">→</div><div class="visual-card"><strong>ORDER BY DESC</strong>SP first<br>RJ second</div></div>
     </div>
   </section>
 
   <section>
     <h2>Part 1 decision guide</h2>
-    <table><thead><tr><th>If the question is…</th><th>Use…</th></tr></thead><tbody>
+    <table class="decision-guide"><thead><tr><th>If the question is…</th><th>Use…</th></tr></thead><tbody>
       <tr><td>I only need certain columns</td><td>SELECT</td></tr>
       <tr><td>I only need certain rows</td><td>WHERE</td></tr>
       <tr><td>I want highest, lowest, or top N</td><td>ORDER BY + LIMIT</td></tr>
@@ -464,7 +469,6 @@ ORDER BY total_revenue DESC;</code></pre>
 
   <section>
     <h2>CTE comparison: without a CTE</h2>
-    <div class="why">This original solution works, but state-revenue logic is nested and repeated.</div>
     <div class="buttons"><button class="toggle" data-target="nocte-sql">Show original non-CTE SQL</button></div>
     <pre id="nocte-sql" hidden><code class="language-sql">SELECT *
 FROM (
@@ -487,12 +491,11 @@ WHERE total_revenue > (
     ) AS all_state_revenue
 )
 ORDER BY total_revenue DESC;</code></pre>
-    <div id="nocte-explain" hidden class="explain">Without a CTE, the state-revenue calculation appears twice: once for the final result and once to calculate the average benchmark. A CTE lets the query name that shared intermediate result.</div>
+    <div id="nocte-explain" hidden class="explain"><strong>Break the original task into requirements:</strong><table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“each state’s total item-price revenue”</td><td>Join the tables, add item prices, and create one total per state.</td><td><code>JOIN</code> + <code>SUM(oi.price)</code> + <code>GROUP BY c.customer_state</code></td></tr><tr><td>“above the average state total”</td><td>Compare each state total to the average of all state totals.</td><td>A second grouped subquery calculates <code>AVG(total_revenue)</code>.</td></tr><tr><td>“without a CTE”</td><td>The grouped state-revenue result has no reusable name.</td><td>Repeat the grouped subquery where it is needed.</td></tr><tr><td>“return only totals above”</td><td>Keep states whose total exceeds the benchmark.</td><td><code>WHERE total_revenue &gt; (subquery)</code></td></tr></tbody></table></div>
   </section>
 
   <section>
     <h2>CTE comparison: with a CTE</h2>
-    <div class="why">The original CTE version gives the first logical step a name: state_revenue.</div>
     <div class="buttons"><button class="toggle" data-target="cte-sql">Show original CTE SQL</button><button class="toggle" data-target="cte-explain">Show two steps</button></div>
     <pre id="cte-sql" hidden><code class="language-sql">WITH state_revenue AS (
     SELECT
@@ -512,7 +515,7 @@ WHERE total_revenue > (
     FROM state_revenue
 )
 ORDER BY total_revenue DESC;</code></pre>
-    <div id="cte-explain" hidden class="explain"><strong>Step 1:</strong> create state_revenue. <strong>Step 2:</strong> analyze that named result. The CTE improves structure; it does not make the non-CTE answer invalid.
+    <div id="cte-explain" hidden class="explain"><strong>Break the original task into requirements:</strong><table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“each state’s total item-price revenue”</td><td>Build the state-level totals once.</td><td><code>WITH state_revenue AS (... GROUP BY c.customer_state)</code></td></tr><tr><td>“average state total”</td><td>Average the completed state totals, not individual item prices.</td><td><code>SELECT AVG(total_revenue) FROM state_revenue</code></td></tr><tr><td>“only totals above”</td><td>Compare each named state total with that average.</td><td><code>WHERE total_revenue &gt; (subquery)</code></td></tr><tr><td>“return”</td><td>Show the state and its qualifying total.</td><td>Final <code>SELECT</code> reads from <code>state_revenue</code>.</td></tr></tbody></table>
       <div class="visual-hint" aria-label="CTE two-step process"><div class="visual-card"><strong>WITH state_revenue</strong>SP → 12,000<br>RJ → 8,000</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Final SELECT</strong>Filter, rank, or compare<br>the named result</div></div>
     </div>
   </section>
@@ -531,7 +534,7 @@ ORDER BY total_revenue DESC;</code></pre>
     END AS price_category
 FROM order_items
 LIMIT 20;</code></pre>
-    <div id="case-explain" hidden class="explain">CASE WHEN translates raw values into labels. It is useful for segmentation, reporting labels, and business rules.
+    <div id="case-explain" hidden class="explain"><strong>Break the task into requirements:</strong><table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“price_category”</td><td>Create a new label from each numeric price.</td><td><code>CASE ... END AS price_category</code></td></tr><tr><td>“Low below 50”</td><td>Assign Low to prices under 50.</td><td><code>WHEN price &lt; 50 THEN 'Low'</code></td></tr><tr><td>“Medium from 50 to under 200”</td><td>After prices under 50 are handled, assign Medium to prices under 200.</td><td><code>WHEN price &lt; 200 THEN 'Medium'</code></td></tr><tr><td>“High at 200 or more”</td><td>Assign High to every remaining price.</td><td><code>ELSE 'High'</code></td></tr><tr><td>“Show 20 order items”</td><td>Return item-level rows and cap the output.</td><td><code>FROM order_items</code> + <code>LIMIT 20</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="CASE price categories"><div class="visual-card"><strong>price &lt; 50</strong><span class="visual-pill">Low</span></div><div class="visual-card"><strong>50–199.99</strong><span class="visual-pill">Medium</span></div><div class="visual-card"><strong>price ≥ 200</strong><span class="visual-pill">High</span></div></div>
     </div>
   </section>
@@ -555,7 +558,7 @@ JOIN products AS p
 WHERE p.product_category_name IS NOT NULL
 ORDER BY p.product_category_name, price_rank
 LIMIT 30;</code></pre>
-    <div id="window-explain" hidden class="explain">PARTITION BY restarts ranking per category. ORDER BY inside OVER determines who is rank 1.
+    <div id="window-explain" hidden class="explain"><strong>Break the task into requirements:</strong><table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“within each product category”</td><td>Start a separate ranking for every category.</td><td><code>PARTITION BY p.product_category_name</code></td></tr><tr><td>“Rank each order item”</td><td>Keep every item row and add its position; do not collapse items into a category summary.</td><td><code>RANK() OVER (...)</code>, not <code>GROUP BY</code></td></tr><tr><td>“most expensive”</td><td>Give rank 1 to the largest price within each category.</td><td><code>ORDER BY oi.price DESC</code> inside <code>OVER</code></td></tr><tr><td>“product category” plus “order item”</td><td>Combine fields from products and order_items.</td><td><code>JOIN products AS p ON oi.product_id = p.product_id</code></td></tr></tbody></table>
       <div class="visual-table" aria-label="Window ranking example"><span class="head">category</span><span class="head">price → rank</span><span>books</span><span>80 → 1</span><span>books</span><span>45 → 2</span><span>toys</span><span>60 → 1</span><span>toys</span><span>20 → 2</span></div>
     </div>
   </section>
@@ -573,14 +576,14 @@ LIMIT 30;</code></pre>
 )
 SELECT number
 FROM countdown;</code></pre>
-    <div id="recursive-explain" hidden class="explain">A recursive CTE has a starting row, then repeatedly uses its previous output to create the next row. The condition stops the loop.
+    <div id="recursive-explain" hidden class="explain"><strong>Break the countdown example into requirements:</strong><table class="task-breakdown"><thead><tr><th>Example requirement</th><th>What it does</th><th>SQL choice</th></tr></thead><tbody><tr><td>Start at 3</td><td>Create the first row of the result.</td><td>Anchor query: <code>SELECT 3 AS number</code></td></tr><tr><td>Count down</td><td>Create the next row from the previous row.</td><td>Recursive query: <code>SELECT number - 1 FROM countdown</code></td></tr><tr><td>Stop at 1</td><td>Do not create a next row after 1.</td><td><code>WHERE number &gt; 1</code></td></tr><tr><td>Include every step</td><td>Append each generated row to the result.</td><td><code>UNION ALL</code></td></tr></tbody></table>
       <div class="visual-hint" aria-label="Recursive countdown steps"><div class="visual-card"><strong>Start</strong>number = 3</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Repeat</strong>3 − 1 = 2<br>2 − 1 = 1</div><div class="visual-arrow">→</div><div class="visual-card"><strong>Stop</strong>number is no longer<br>greater than 1</div></div>
     </div>
   </section>
 
   <section>
     <h2>Part 2 decision guide</h2>
-    <table><thead><tr><th>If the question is…</th><th>Use…</th></tr></thead><tbody>
+    <table class="decision-guide"><thead><tr><th>If the question is…</th><th>Use…</th></tr></thead><tbody>
       <tr><td>I need to name an intermediate result before using it again</td><td>CTE (<code>WITH</code>)</td></tr>
       <tr><td>I need to turn numeric rules into business labels</td><td><code>CASE WHEN</code></td></tr>
       <tr><td>I need ranks, running totals, or comparisons while keeping every row</td><td>Window function (<code>OVER</code>)</td></tr>
@@ -590,12 +593,12 @@ FROM countdown;</code></pre>
   </section>
 
   <section>
-    <div class="part"><p class="eyebrow">Part 3</p><h1>Mini-Test</h1><p>Think first. All answers stay hidden until you choose to reveal them.</p></div>
+    <div class="part"><p class="eyebrow">Part 3</p><h1>Mini-Test</h1><p>Think first. Answer keys stay hidden while you practice.</p></div>
   </section>
 
   <section>
     <h2>Mini-Test 1 — Basic</h2>
-    <div class="mini"><strong>Question:</strong> Return exactly 5 rows. Each row must show a state code and the number of customers in that state. Sort from the largest customer count to the smallest.<br><br><strong>Expected output:</strong> customer_state, customer_count.</div>
+    <div class="mini"><strong>Problem:</strong> The <code>customers</code> table contains one row for each customer record and includes <code>customer_state</code>. Write a query that returns the five states with the most customer records.<br><br>For each state, count its customer rows. Return the states from the largest customer count to the smallest.<br><br><strong>Output:</strong> <code>customer_state</code>, <code>customer_count</code>.</div>
     <div class="practice-runner" data-answer-id="m1-solution">
       <h3>Try SQL</h3>
       <p>Write a read-only query, then run it before revealing the hint or solution.</p>
@@ -604,8 +607,8 @@ FROM countdown;</code></pre>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m1-hint">Explain</button><button class="toggle" data-target="m1-solution">Show Answers</button></div>
-    <div id="m1-hint" hidden class="explain">Think: one result per state, a count, descending order, and five rows.
+    <div class="buttons"><button class="toggle" data-target="m1-hint">Explain</button></div>
+    <div id="m1-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“five states with the most customer records”</td><td>Make one group per state, then keep the top five groups.</td><td><code>GROUP BY customer_state</code> + <code>LIMIT 5</code></td></tr><tr><td>“count its customer rows”</td><td>Count customer records within every state group.</td><td><code>COUNT(*) AS customer_count</code></td></tr><tr><td>“largest customer count to the smallest”</td><td>Rank state counts in descending order.</td><td><code>ORDER BY customer_count DESC</code></td></tr><tr><td>“Output: customer_state, customer_count”</td><td>Return the state code and its count.</td><td>List both fields in <code>SELECT</code>.</td></tr></tbody></table>
       <div class="visual-hint" aria-label="Mini-Test 1 query plan"><div class="visual-card"><strong>customers</strong>Many customer rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>GROUP BY</strong>One group per state</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT + TOP 5</strong>Largest five groups</div></div>
     </div>
     <pre id="m1-solution" hidden><code class="language-sql">SELECT
@@ -619,7 +622,7 @@ LIMIT 5;</code></pre>
 
   <section>
     <h2>Mini-Test 2 — JOIN</h2>
-    <div class="mini"><strong>Question:</strong> Return exactly 5 rows. Each row must show a customer state and its total revenue, defined as the sum of order_items.price for purchases by customers in that state. Do not include freight.</div>
+    <div class="mini"><strong>Problem:</strong> Customer state is stored in <code>customers</code>; orders connect customers to <code>order_items</code>. Write a query that returns the five states with the highest item revenue.<br><br>For each state, total only <code>order_items.price</code> from purchases made by its customers. Do not include freight values. Return the states from the highest total revenue to the lowest.<br><br><strong>Output:</strong> <code>customer_state</code>, <code>total_revenue</code>.</div>
     <div class="practice-runner" data-answer-id="m2-solution">
       <h3>Try SQL</h3>
       <p>Use the Olist tables from the schema diagram. Run your own read-only query here.</p>
@@ -628,8 +631,8 @@ LIMIT 5;</code></pre>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m2-hint">Explain</button><button class="toggle" data-target="m2-solution">Show Answers</button></div>
-    <div id="m2-hint" hidden class="explain">Find the state, the customer-order link, and the item price before writing the aggregation.
+    <div class="buttons"><button class="toggle" data-target="m2-hint">Explain</button></div>
+    <div id="m2-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“Customer state is stored in customers”</td><td>Start with <code>customers</code>, where the state lives.</td><td><code>FROM customers AS c</code></td></tr><tr><td>“orders connect customers to order_items”</td><td>Follow the relationship from customer to order, then to order item.</td><td>Join <code>customers → orders → order_items</code>.</td></tr><tr><td>“total only order_items.price”</td><td>Add item prices for each state.</td><td><code>SUM(oi.price) AS total_revenue</code></td></tr><tr><td>“five states with the highest item revenue”</td><td>Make one total per state, rank totals high to low, then keep five.</td><td><code>GROUP BY</code> + <code>ORDER BY total_revenue DESC</code> + <code>LIMIT 5</code></td></tr><tr><td>“Do not include freight values”</td><td>Do not add freight values to the calculation.</td><td>Use <code>oi.price</code> only.</td></tr></tbody></table>
       <div class="visual-hint" aria-label="Mini-Test 2 join and aggregation plan"><div class="visual-card"><strong>customers</strong><span class="visual-pill">state</span></div><div class="visual-arrow">customer_id</div><div class="visual-card"><strong>orders</strong><span class="visual-pill">order_id</span></div><div class="visual-arrow">order_id</div><div class="visual-card"><strong>order_items</strong><span class="visual-pill">price</span><br>SUM per state</div></div>
     </div>
     <pre id="m2-solution" hidden><code class="language-sql">SELECT
@@ -645,7 +648,7 @@ LIMIT 5;</code></pre>
 
   <section>
     <h2>Mini-Test 3 — Uber interview (Medium)</h2>
-    <div class="mini"><strong>Question:</strong> Treat each row in <code>orders</code> as one transaction. For every <code>customer_unique_id</code>, return that customer’s third chronological order.<br><br><strong>Output:</strong> customer_unique_id, order_id, and order_purchase_timestamp. Exclude customers with fewer than three orders. If timestamps tie, order by order_id.</div>
+    <div class="mini"><strong>Problem:</strong> The <code>customers</code> table maps <code>customer_id</code> to <code>customer_unique_id</code>, and each row in <code>orders</code> represents one transaction. Write a query that returns every customer’s third order in chronological order.<br><br>Order each customer’s transactions by <code>order_purchase_timestamp</code> ascending. If two timestamps are equal, sort by <code>order_id</code> ascending. Exclude customers with fewer than three orders.<br><br><strong>Output:</strong> <code>customer_unique_id</code>, <code>order_id</code>, <code>order_purchase_timestamp</code>.</div>
     <p class="source-note"><strong>Interview source:</strong> Adapted for the Olist dataset from DataLemur’s <a href="https://datalemur.com/questions/sql-third-transaction" target="_blank" rel="noopener noreferrer">User’s Third Transaction — Uber, Medium</a>.</p>
     <div class="practice-runner" data-answer-id="m3-solution">
       <h3>Try SQL</h3>
@@ -655,8 +658,8 @@ LIMIT 5;</code></pre>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m3-hint">Explain</button><button class="toggle" data-target="m3-solution">Show Answers</button></div>
-    <div id="m3-hint" hidden class="explain">Use <code>ROW_NUMBER()</code> partitioned by <code>customer_unique_id</code>, ordered by order timestamp and order ID. Then keep row number 3.
+    <div class="buttons"><button class="toggle" data-target="m3-hint">Explain</button></div>
+    <div id="m3-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“customers maps customer_id to customer_unique_id”</td><td>Join an order to its persistent customer identity before numbering transactions.</td><td><code>JOIN customers AS c ON c.customer_id = o.customer_id</code></td></tr><tr><td>“every customer’s third order”</td><td>Number each customer’s orders separately, then keep number 3.</td><td><code>ROW_NUMBER() OVER (PARTITION BY c.customer_unique_id ...)</code> + <code>WHERE order_number = 3</code></td></tr><tr><td>“chronological order”</td><td>Assign earlier purchases smaller row numbers.</td><td><code>ORDER BY o.order_purchase_timestamp</code></td></tr><tr><td>“If two timestamps are equal, sort by order_id”</td><td>Make the sequence deterministic when two timestamps match.</td><td>Add <code>o.order_id</code> after the timestamp in the window <code>ORDER BY</code>.</td></tr><tr><td>“Exclude customers with fewer than three orders”</td><td>Only customers who receive row number 3 remain.</td><td><code>WHERE order_number = 3</code></td></tr></tbody></table>
       <div class="visual-table" aria-label="Mini-Test 3 row numbering example"><span class="head">customer A order</span><span class="head">ROW_NUMBER()</span><span>2022-01-08</span><span>1</span><span>2022-01-10</span><span>2</span><span class="keep">2022-02-05</span><span class="keep">3 — keep</span></div>
     </div>
     <pre id="m3-solution" hidden><code class="language-sql">WITH ranked_orders AS (
@@ -683,7 +686,7 @@ ORDER BY order_purchase_timestamp, order_id;</code></pre>
 
   <section>
     <h2>Mini-Test 4 — Apple interview (Simplified)</h2>
-    <div class="mini"><strong>Question:</strong> For orders placed in 2018, calculate the total number of orders for each month.<br><br><strong>Output:</strong> order_month and order_count. Sort from the earliest month to the latest.</div>
+    <div class="mini"><strong>Problem:</strong> Each row in <code>orders</code> represents one order and includes <code>order_purchase_timestamp</code>. Write a query that counts orders placed in 2018 for each calendar month.<br><br>Use the purchase timestamp to determine an order’s month. Return the months from earliest to latest.<br><br><strong>Output:</strong> <code>order_month</code>, <code>order_count</code>.</div>
     <p class="source-note"><strong>Interview source:</strong> Simplified Olist monthly-performance adaptation inspired by DataLemur’s <a href="https://datalemur.com/blog/apple-sql-interview-questions" target="_blank" rel="noopener noreferrer">Apple SQL interview questions</a>. This version uses the available <code>orders</code> table.</p>
     <div class="practice-runner" data-answer-id="m4-solution">
       <h3>Try SQL</h3>
@@ -693,8 +696,8 @@ ORDER BY order_purchase_timestamp, order_id;</code></pre>
       <div class="inline-query-result" hidden></div>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
-    <div class="buttons"><button class="toggle" data-target="m4-hint">Explain</button><button class="toggle" data-target="m4-solution">Show Answers</button></div>
-    <div id="m4-hint" hidden class="explain">Use <code>DATE_TRUNC('month', order_purchase_timestamp)</code> to create the month, then use <code>COUNT(*)</code>.
+    <div class="buttons"><button class="toggle" data-target="m4-hint">Explain</button></div>
+    <div id="m4-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“orders placed in 2018”</td><td>Keep only timestamps in the 2018 calendar year.</td><td><code>WHERE order_purchase_timestamp &gt;= DATE '2018-01-01' AND order_purchase_timestamp &lt; DATE '2019-01-01'</code></td></tr><tr><td>“for each calendar month”</td><td>Convert each purchase timestamp to its month and make one group per month.</td><td><code>DATE_TRUNC('month', ...)</code> + <code>GROUP BY order_month</code></td></tr><tr><td>“counts orders”</td><td>Count order rows inside each month.</td><td><code>COUNT(*) AS order_count</code></td></tr><tr><td>“earliest to latest”</td><td>Sort months from old to new.</td><td><code>ORDER BY order_month</code></td></tr><tr><td>“Output: order_month, order_count”</td><td>Return the month label and its count.</td><td>List both fields in <code>SELECT</code>.</td></tr></tbody></table>
       <div class="visual-hint" aria-label="Mini-Test 4 monthly count plan"><div class="visual-card"><strong>orders</strong>2018-03-04<br>2018-03-19<br>2018-04-02</div><div class="visual-arrow">→</div><div class="visual-card"><strong>DATE_TRUNC</strong>2018-03<br>2018-03<br>2018-04</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT</strong>2018-03 → 2<br>2018-04 → 1</div></div>
     </div>
     <pre id="m4-solution" hidden><code class="language-sql">SELECT

@@ -308,7 +308,7 @@ FROM order_items;</code></pre>
     customer_state,
     COUNT(*) AS customer_count
 FROM customers
-    GROUP BY customer_state
+GROUP BY customer_state
 ORDER BY customer_count DESC;</code></pre>
     <div id="group-result" hidden class="result"><strong>Expected columns:</strong> customer_state | customer_count<br>Each state becomes one output row.</div>
     <div id="group-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
@@ -347,18 +347,7 @@ LIMIT 20;</code></pre>
       order_table --> item_table["order_items"]
       item_table --> product_table["products"]</pre>
     <p class="fragment">The original tutorial extends the customer-order relationship to order items and products.</p>
-    <div class="buttons"><button class="toggle" data-target="multi-sql">Show state + order-item SQL</button><button class="toggle" data-target="product-sql">Show state + product SQL</button><button class="toggle" data-target="multi-explain">Explain</button></div>
-    <pre id="multi-sql" hidden><code class="language-sql">SELECT
-    c.customer_state,
-    o.order_id,
-    oi.product_id,
-    oi.price
-FROM customers AS c
-JOIN orders AS o
-    ON c.customer_id = o.customer_id
-JOIN order_items AS oi
-    ON o.order_id = oi.order_id
-LIMIT 20;</code></pre>
+    <div class="buttons"><button class="toggle" data-target="product-sql">Show state + product SQL</button><button class="toggle" data-target="multi-explain">Explain</button></div>
     <pre id="product-sql" hidden><code class="language-sql">SELECT
     c.customer_state,
     o.order_id,
@@ -384,7 +373,7 @@ LIMIT 20;</code></pre>
     <pre class="mermaid">flowchart LR
       average_price["Calculate average price"] --> compare_items["Compare each order item"]
       compare_items --> above_average["Keep items above average"]</pre>
-    <div class="buttons"><button class="toggle" data-target="sub-sql">Show original SQL</button><button class="toggle" data-target="sub-customer-sql">Show second original subquery</button><button class="toggle" data-target="sub-explain">Explain inner vs outer query</button></div>
+    <div class="buttons"><button class="toggle" data-target="sub-sql">Show original SQL</button><button class="toggle" data-target="sub-explain">Explain inner vs outer query</button></div>
     <pre id="sub-sql" hidden><code class="language-sql">SELECT
     product_id,
     order_id,
@@ -395,19 +384,6 @@ WHERE price > (
     FROM order_items
 )
 ORDER BY price DESC
-LIMIT 20;</code></pre>
-    <pre id="sub-customer-sql" hidden><code class="language-sql">SELECT
-    customer_id,
-    customer_city,
-    customer_state
-FROM customers
-WHERE customer_id IN (
-    SELECT o.customer_id
-    FROM orders AS o
-    JOIN order_items AS oi
-        ON o.order_id = oi.order_id
-    WHERE oi.price &gt; 1000
-)
 LIMIT 20;</code></pre>
     <div id="sub-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
       <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“above the company’s average order-item price”</td><td>First calculate one benchmark from all item prices.</td><td>Inner query: <code>SELECT AVG(price) FROM order_items</code></td></tr><tr><td>“above-average order items”</td><td>Compare each item price with that one benchmark.</td><td><code>WHERE price &gt; (subquery)</code></td></tr><tr><td>“sorted by price descending”</td><td>Show the most expensive qualifying item first.</td><td><code>ORDER BY price DESC</code></td></tr><tr><td>“up to 20”</td><td>Keep only the first 20 after sorting.</td><td><code>LIMIT 20</code></td></tr></tbody></table>

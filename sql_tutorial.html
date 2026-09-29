@@ -160,37 +160,38 @@
   <div class="nav-part">Part 1 — Fundamentals</div>
   <button data-slide="1">Part 1 overview</button>
   <button data-slide="2">Olist schema</button>
-  <button data-slide="3">SELECT</button>
-  <button data-slide="4">WHERE + execution order</button>
-  <button data-slide="5">DISTINCT · ORDER BY · LIMIT</button>
-  <button data-slide="6">Aggregate functions</button>
-  <button data-slide="7">GROUP BY</button>
-  <button data-slide="8">JOIN</button>
-  <button data-slide="9">Multi-table JOIN</button>
-  <button data-slide="10">Subquery</button>
-  <button data-slide="11">Combining skills: revenue</button>
-  <button data-slide="12">Part 1 decision guide</button>
+  <button data-slide="3">SQL execution order</button>
+  <button data-slide="4">SELECT</button>
+  <button data-slide="5">WHERE</button>
+  <button data-slide="6">DISTINCT · ORDER BY · LIMIT</button>
+  <button data-slide="7">Aggregate functions</button>
+  <button data-slide="8">GROUP BY</button>
+  <button data-slide="9">JOIN</button>
+  <button data-slide="10">Multi-table JOIN</button>
+  <button data-slide="11">Subquery</button>
+  <button data-slide="12">Combining skills: revenue</button>
+  <button data-slide="13">Part 1 decision guide</button>
   <div class="nav-part">Part 2 — Advanced SQL</div>
-  <button data-slide="13">Part 2 overview</button>
-  <button data-slide="14">CTE: the business problem</button>
-  <button data-slide="15">CTE: without CTE</button>
-  <button data-slide="16">CTE: with CTE</button>
-  <button data-slide="17">CASE WHEN</button>
-  <button data-slide="18">Window functions</button>
-  <button data-slide="19">Recursive CTE</button>
-  <button data-slide="20">Part 2 decision guide</button>
+  <button data-slide="14">Part 2 overview</button>
+  <button data-slide="15">CTE: the business problem</button>
+  <button data-slide="16">CTE: without CTE</button>
+  <button data-slide="17">CTE: with CTE</button>
+  <button data-slide="18">CASE WHEN</button>
+  <button data-slide="19">Window functions</button>
+  <button data-slide="20">Recursive CTE</button>
+  <button data-slide="21">Part 2 decision guide</button>
   <div class="nav-part">Part 3 — Mini-Test</div>
-  <button data-slide="21">Mini-Test overview</button>
-  <button data-slide="22">Question 1: Basic</button>
-  <button data-slide="23">Question 2: JOIN</button>
-  <button data-slide="24">Question 3: Uber transaction</button>
-  <button data-slide="25">Question 4: Apple monthly orders</button>
+  <button data-slide="22">Mini-Test overview</button>
+  <button data-slide="23">Question 1: Basic</button>
+  <button data-slide="24">Question 2: JOIN</button>
+  <button data-slide="25">Question 3: Uber transaction</button>
+  <button data-slide="26">Question 4: Apple monthly orders</button>
   <div class="nav-part">Appendix</div>
-  <button data-slide="26">Appendix: Table management</button>
-  <button data-slide="27">Appendix: Safe CRUD practice</button>
+  <button data-slide="27">Appendix: Table management</button>
+  <button data-slide="28">Appendix: Safe CRUD practice</button>
   <div class="nav-part">Next</div>
-  <button data-slide="28">What’s next: Text-to-SQL</button>
-  <button data-slide="29">Resources & practice</button>
+  <button data-slide="29">What’s next: Text-to-SQL</button>
+  <button data-slide="30">Resources & practice</button>
 </nav>
 <main id="content">
 
@@ -228,6 +229,13 @@
   </section>
 
   <section>
+    <p class="eyebrow">SQL LOGICAL EXECUTION ORDER</p><h2>How a query is processed</h2>
+    <div class="case"><strong>Read SQL in execution order:</strong> We write <code>SELECT</code> first, but SQL starts by finding its data. For a query that uses these clauses, the logical order is:</div>
+    <div class="visual-hint" aria-label="SQL logical execution order"><div class="visual-card"><strong>1. FROM / JOIN</strong>Choose and connect rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>2. WHERE</strong>Filter individual rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>3. GROUP BY</strong>Form groups</div><div class="visual-arrow">→</div><div class="visual-card"><strong>4. HAVING</strong>Filter groups</div><div class="visual-arrow">→</div><div class="visual-card"><strong>5. SELECT</strong>Choose output columns</div><div class="visual-arrow">→</div><div class="visual-card"><strong>6. DISTINCT</strong>Remove duplicate output</div><div class="visual-arrow">→</div><div class="visual-card"><strong>7. ORDER BY</strong>Sort results</div><div class="visual-arrow">→</div><div class="visual-card"><strong>8. LIMIT</strong>Keep the first rows</div></div>
+    <p class="footer-note"><code>JOIN</code> belongs with <code>FROM</code>. Use <code>WHERE</code> before grouping and <code>HAVING</code> after grouping.</p>
+  </section>
+
+  <section>
     <p class="eyebrow">SELECT</p><h2>Choose the information you need</h2>
     <div class="case"><strong>Scenario:</strong> A regional marketing analyst is preparing a small address-targeting sample.<br><br><strong>Task:</strong> Produce a 20-row customer-location list. Each row must contain exactly customer_id, customer_city, and customer_state.</div>
     <div class="buttons"><button class="toggle" data-target="select-sql">Show SQL</button><button class="toggle" data-target="select-explain">Explain</button></div>
@@ -246,7 +254,6 @@ LIMIT 20;</code></pre>
   <section>
     <p class="eyebrow">WHERE</p><h2>Choose the rows you need</h2>
     <div class="case"><strong>Scenario:</strong> The São Paulo regional manager wants to review customers served by that state only.<br><br><strong>Task:</strong> Show up to 20 customers whose state is São Paulo (SP). No other states should appear.</div>
-    <div class="case fragment"><strong>SQL logical execution order:</strong> We write <code>SELECT</code> first, but SQL starts by finding its data. For a query that uses these clauses, the logical order is:<div class="visual-hint" aria-label="SQL logical execution order"><div class="visual-card"><strong>1. FROM / JOIN</strong>Choose and connect rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>2. WHERE</strong>Filter individual rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>3. GROUP BY</strong>Form groups</div><div class="visual-arrow">→</div><div class="visual-card"><strong>4. HAVING</strong>Filter groups</div><div class="visual-arrow">→</div><div class="visual-card"><strong>5. SELECT</strong>Choose output columns</div><div class="visual-arrow">→</div><div class="visual-card"><strong>6. DISTINCT</strong>Remove duplicate output</div><div class="visual-arrow">→</div><div class="visual-card"><strong>7. ORDER BY</strong>Sort results</div><div class="visual-arrow">→</div><div class="visual-card"><strong>8. LIMIT</strong>Keep the first rows</div></div><p class="footer-note"><code>JOIN</code> belongs with <code>FROM</code>. Use <code>WHERE</code> before grouping and <code>HAVING</code> after grouping.</p></div>
     <div class="buttons"><button class="toggle" data-target="where-sql">Show SQL</button><button class="toggle" data-target="where-explain">Explain</button></div>
     <pre id="where-sql" hidden><code class="language-sql">SELECT
     customer_id,

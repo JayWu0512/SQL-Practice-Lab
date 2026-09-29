@@ -5,3 +5,4 @@ __pycache__/
 venv/
 .env
 mini-test-answers.local.md
+new_mini_tests.md

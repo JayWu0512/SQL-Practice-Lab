@@ -229,10 +229,11 @@
   </section>
 
   <section>
-    <p class="eyebrow">SQL LOGICAL EXECUTION ORDER</p><h2>How a query is processed</h2>
-    <div class="case"><strong>Read SQL in execution order:</strong> We write <code>SELECT</code> first, but SQL starts by finding its data. For a query that uses these clauses, the logical order is:</div>
-    <div class="visual-hint" aria-label="SQL logical execution order"><div class="visual-card"><strong>1. FROM / JOIN</strong>Choose and connect rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>2. WHERE</strong>Filter individual rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>3. GROUP BY</strong>Form groups</div><div class="visual-arrow">→</div><div class="visual-card"><strong>4. HAVING</strong>Filter groups</div><div class="visual-arrow">→</div><div class="visual-card"><strong>5. SELECT</strong>Choose output columns</div><div class="visual-arrow">→</div><div class="visual-card"><strong>6. DISTINCT</strong>Remove duplicate output</div><div class="visual-arrow">→</div><div class="visual-card"><strong>7. ORDER BY</strong>Sort results</div><div class="visual-arrow">→</div><div class="visual-card"><strong>8. LIMIT</strong>Keep the first rows</div></div>
-    <p class="footer-note"><code>JOIN</code> belongs with <code>FROM</code>. Use <code>WHERE</code> before grouping and <code>HAVING</code> after grouping.</p>
+    <p class="eyebrow">SQL LOGICAL EXECUTION ORDER</p><h2>SQL runs from data to result</h2>
+    <div class="case"><strong>A useful surprise:</strong> We usually write <code>SELECT</code> first, but the database must find and filter the data before it can choose what to display. Start with this simple query pattern:</div>
+    <div class="visual-table" aria-label="Simple SQL execution order"><span class="head">Clause you write</span><span class="head">What the database does</span><span><code>SELECT customer_city</code></span><span><strong>3.</strong> Choose the columns to show.</span><span><code>FROM customers</code></span><span><strong>1.</strong> Start with all customer rows.</span><span><code>WHERE customer_state = 'SP'</code></span><span><strong>2.</strong> Keep only São Paulo rows.</span></div>
+    <div class="case"><strong>For a summary query:</strong> Add grouping steps between filtering rows and choosing the final output.<br><br><code>FROM / JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</code></div>
+    <p class="footer-note">Not every query uses every clause. <code>JOIN</code> belongs with <code>FROM</code>; <code>WHERE</code> filters rows, while <code>HAVING</code> filters completed groups.</p>
   </section>
 
   <section>

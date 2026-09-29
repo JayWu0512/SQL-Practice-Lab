@@ -301,19 +301,20 @@ FROM order_items;</code></pre>
 
   <section>
     <p class="eyebrow">GROUP BY</p><h2>One summary for each category</h2>
-    <div class="case"><strong>Scenario:</strong> An expansion team must decide where the customer base is strongest before choosing a city for the next warehouse.<br><br><strong>Task:</strong> Produce one row for every customer_state with that state’s customer count. Put the largest count first.</div>
-    <div class="compare fragment"><div><strong>COUNT(*)</strong><br>One total for the whole table.</div><div><strong>GROUP BY + COUNT(*)</strong><br>One total for SP, RJ, MG, and every other state.</div></div>
+    <div class="case"><strong>Scenario:</strong> An expansion team must decide where the customer base is large enough to support a new warehouse.<br><br><strong>Task:</strong> Produce one row for each customer_state with at least 10,000 customer records. Include that state’s customer count and put the largest count first.</div>
+    <div class="compare fragment"><div><strong>GROUP BY + COUNT(*)</strong><br>Count customers for every state.</div><div><strong>HAVING COUNT(*)</strong><br>Keep only states whose grouped count reaches 10,000.</div></div>
     <div class="buttons"><button class="toggle" data-target="group-sql">Show SQL</button><button class="toggle" data-target="group-result">Show result shape</button><button class="toggle" data-target="group-explain">Explain</button></div>
     <pre id="group-sql" hidden><code class="language-sql">SELECT
     customer_state,
     COUNT(*) AS customer_count
 FROM customers
 GROUP BY customer_state
+HAVING COUNT(*) &gt;= 10000
 ORDER BY customer_count DESC;</code></pre>
-    <div id="group-result" hidden class="result"><strong>Expected columns:</strong> customer_state | customer_count<br>Each state becomes one output row.</div>
+    <div id="group-result" hidden class="result"><strong>Expected columns:</strong> customer_state | customer_count<br>Each qualifying state becomes one output row.</div>
     <div id="group-explain" hidden class="explain"><strong>Break the task into requirements:</strong>
-      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“one row for every customer_state”</td><td>Make a separate result for each state.</td><td><code>GROUP BY customer_state</code></td></tr><tr><td>“that state’s customer count”</td><td>Count the customer rows inside each state group.</td><td><code>COUNT(*) AS customer_count</code></td></tr><tr><td>“largest count first”</td><td>Rank the grouped counts from high to low.</td><td><code>ORDER BY customer_count DESC</code></td></tr></tbody></table>
-      <div class="visual-table" aria-label="Group by state example"><span class="head">Input state</span><span class="head">Grouped output</span><span>SP, SP, SP</span><span>SP → 3</span><span>RJ, RJ</span><span>RJ → 2</span><span>MG</span><span>MG → 1</span></div>
+      <table class="task-breakdown"><thead><tr><th>Task wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“one row for each customer_state”</td><td>Make a separate result for each state.</td><td><code>GROUP BY customer_state</code></td></tr><tr><td>“that state’s customer count”</td><td>Count the customer rows inside each state group.</td><td><code>COUNT(*) AS customer_count</code></td></tr><tr><td>“at least 10,000 customer records”</td><td>Filter after each state has been counted.</td><td><code>HAVING COUNT(*) &gt;= 10000</code></td></tr><tr><td>“largest count first”</td><td>Rank the qualifying grouped counts from high to low.</td><td><code>ORDER BY customer_count DESC</code></td></tr></tbody></table>
+      <div class="visual-table" aria-label="HAVING filters grouped states"><span class="head">Grouped state count</span><span class="head">Keep after HAVING?</span><span class="keep">SP → 41,000</span><span class="keep">Yes</span><span class="drop">ES → 4,000</span><span class="drop">No</span><span class="keep">MG → 11,000</span><span class="keep">Yes</span></div>
     </div>
   </section>
 

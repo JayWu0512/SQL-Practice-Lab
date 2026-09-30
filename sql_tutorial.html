@@ -182,10 +182,10 @@
   <button data-slide="21">Part 2 decision guide</button>
   <div class="nav-part">Part 3 — Mini-Test</div>
   <button data-slide="22">Mini-Test overview</button>
-  <button data-slide="23">Question 1: Basic</button>
-  <button data-slide="24">Question 2: JOIN</button>
-  <button data-slide="25">Question 3: Uber transaction</button>
-  <button data-slide="26">Question 4: Apple monthly orders</button>
+  <button data-slide="23">Question 1: Market coverage</button>
+  <button data-slide="24">Question 2: Regional sales</button>
+  <button data-slide="25">Question 3: Customer retention</button>
+  <button data-slide="26">Question 4: Demand planning</button>
   <div class="nav-part">Appendix</div>
   <button data-slide="27">Appendix: Table management</button>
   <button data-slide="28">Appendix: Safe CRUD practice</button>
@@ -580,8 +580,8 @@ FROM countdown;</code></pre>
   </section>
 
   <section>
-    <h2>Mini-Test 1 — Basic</h2>
-    <div class="mini"><strong>Problem:</strong> The <code>customers</code> table contains one row for each customer record and includes <code>customer_state</code>. Write a query that returns the five states with the most customer records.<br><br>For each state, count its customer rows. Return the states from the largest customer count to the smallest.<br><br><strong>Output:</strong> <code>customer_state</code>, <code>customer_count</code>.</div>
+    <h2>Mini-Test 1 — Market coverage</h2>
+    <div class="mini"><strong>Business question:</strong> The growth team is deciding where to prioritize its next regional campaign. Using the <code>customers</code> table, identify the five states with the largest customer base.<br><br>For each state, count customer records and rank the results from the largest customer base to the smallest.<br><br><strong>Output:</strong> <code>customer_state</code>, <code>customer_count</code>.</div>
     <div class="practice-runner" data-answer-id="m1-solution">
       <h3>Try SQL</h3>
       <p>Write a read-only query, then run it before revealing the hint or solution.</p>
@@ -591,8 +591,8 @@ FROM countdown;</code></pre>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
     <div class="buttons"><button class="toggle" data-target="m1-hint">Explain</button></div>
-    <div id="m1-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“five states with the most customer records”</td><td>Make one group per state, then keep the top five groups.</td><td><code>GROUP BY customer_state</code> + <code>LIMIT 5</code></td></tr><tr><td>“count its customer rows”</td><td>Count customer records within every state group.</td><td><code>COUNT(*) AS customer_count</code></td></tr><tr><td>“largest customer count to the smallest”</td><td>Rank state counts in descending order.</td><td><code>ORDER BY customer_count DESC</code></td></tr><tr><td>“Output: customer_state, customer_count”</td><td>Return the state code and its count.</td><td>List both fields in <code>SELECT</code>.</td></tr></tbody></table>
-      <div class="visual-hint" aria-label="Mini-Test 1 query plan"><div class="visual-card"><strong>customers</strong>Many customer rows</div><div class="visual-arrow">→</div><div class="visual-card"><strong>GROUP BY</strong>One group per state</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT + TOP 5</strong>Largest five groups</div></div>
+    <div id="m1-hint" hidden class="explain"><strong>Translate the business question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Business wording</th><th>What you need to measure</th><th>SQL choice</th></tr></thead><tbody><tr><td>“prioritize the next regional campaign”</td><td>Compare the size of the customer base in each state, then focus on the five largest markets.</td><td><code>GROUP BY customer_state</code> + <code>LIMIT 5</code></td></tr><tr><td>“largest customer base”</td><td>Count customer records within every state.</td><td><code>COUNT(*) AS customer_count</code></td></tr><tr><td>“largest ... to the smallest”</td><td>Rank state customer-base sizes in descending order.</td><td><code>ORDER BY customer_count DESC</code></td></tr><tr><td>“Output: customer_state, customer_count”</td><td>Return the market identifier and its customer-base size.</td><td>List both fields in <code>SELECT</code>.</td></tr></tbody></table>
+      <div class="visual-hint" aria-label="Mini-Test 1 market-coverage plan"><div class="visual-card"><strong>customers</strong>Customer records by state</div><div class="visual-arrow">→</div><div class="visual-card"><strong>GROUP BY</strong>One market per state</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT + TOP 5</strong>Priority campaign markets</div></div>
     </div>
     <pre id="m1-solution" hidden><code class="language-sql">SELECT
     customer_state,
@@ -604,8 +604,8 @@ LIMIT 5;</code></pre>
   </section>
 
   <section>
-    <h2>Mini-Test 2 — JOIN</h2>
-    <div class="mini"><strong>Problem:</strong> Customer state is stored in <code>customers</code>; orders connect customers to <code>order_items</code>. Write a query that returns the five states with the highest item revenue.<br><br>For each state, total only <code>order_items.price</code> from purchases made by its customers. Do not include freight values. Return the states from the highest total revenue to the lowest.<br><br><strong>Output:</strong> <code>customer_state</code>, <code>total_revenue</code>.</div>
+    <h2>Mini-Test 2 — Regional sales</h2>
+    <div class="mini"><strong>Business question:</strong> The sales team wants to see which customer regions generate the most merchandise revenue. Customer state is stored in <code>customers</code>; orders connect customers to <code>order_items</code>.<br><br>For each state, total only <code>order_items.price</code> from purchases made by its customers. Exclude freight so the measure reflects merchandise revenue only. Return the five highest-revenue states first.<br><br><strong>Output:</strong> <code>customer_state</code>, <code>total_revenue</code>.</div>
     <div class="practice-runner" data-answer-id="m2-solution">
       <h3>Try SQL</h3>
       <p>Use the Olist tables from the schema diagram. Run your own read-only query here.</p>
@@ -615,8 +615,8 @@ LIMIT 5;</code></pre>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
     <div class="buttons"><button class="toggle" data-target="m2-hint">Explain</button></div>
-    <div id="m2-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“Customer state is stored in customers”</td><td>Start with <code>customers</code>, where the state lives.</td><td><code>FROM customers AS c</code></td></tr><tr><td>“orders connect customers to order_items”</td><td>Follow the relationship from customer to order, then to order item.</td><td>Join <code>customers → orders → order_items</code>.</td></tr><tr><td>“total only order_items.price”</td><td>Add item prices for each state.</td><td><code>SUM(oi.price) AS total_revenue</code></td></tr><tr><td>“five states with the highest item revenue”</td><td>Make one total per state, rank totals high to low, then keep five.</td><td><code>GROUP BY</code> + <code>ORDER BY total_revenue DESC</code> + <code>LIMIT 5</code></td></tr><tr><td>“Do not include freight values”</td><td>Do not add freight values to the calculation.</td><td>Use <code>oi.price</code> only.</td></tr></tbody></table>
-      <div class="visual-hint" aria-label="Mini-Test 2 join and aggregation plan"><div class="visual-card"><strong>customers</strong><span class="visual-pill">state</span></div><div class="visual-arrow">customer_id</div><div class="visual-card"><strong>orders</strong><span class="visual-pill">order_id</span></div><div class="visual-arrow">order_id</div><div class="visual-card"><strong>order_items</strong><span class="visual-pill">price</span><br>SUM per state</div></div>
+    <div id="m2-hint" hidden class="explain"><strong>Translate the business question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Business wording</th><th>What you need to measure</th><th>SQL choice</th></tr></thead><tbody><tr><td>“which customer regions generate the most merchandise revenue”</td><td>Start with the customer table, where each customer’s state is stored.</td><td><code>FROM customers AS c</code></td></tr><tr><td>“orders connect customers to order_items”</td><td>Link each region’s customers to their orders, then to the merchandise sold.</td><td>Join <code>customers → orders → order_items</code>.</td></tr><tr><td>“merchandise revenue only”</td><td>Add item prices for each state.</td><td><code>SUM(oi.price) AS total_revenue</code></td></tr><tr><td>“five highest-revenue states”</td><td>Calculate one revenue total per state, rank it high to low, and retain five regions.</td><td><code>GROUP BY</code> + <code>ORDER BY total_revenue DESC</code> + <code>LIMIT 5</code></td></tr><tr><td>“Exclude freight”</td><td>Keep shipping charges out of the merchandise-revenue measure.</td><td>Use <code>oi.price</code> only.</td></tr></tbody></table>
+      <div class="visual-hint" aria-label="Mini-Test 2 regional-sales plan"><div class="visual-card"><strong>customers</strong><span class="visual-pill">market / state</span></div><div class="visual-arrow">customer_id</div><div class="visual-card"><strong>orders</strong><span class="visual-pill">order_id</span></div><div class="visual-arrow">order_id</div><div class="visual-card"><strong>order_items</strong><span class="visual-pill">merchandise price</span><br>SUM by market</div></div>
     </div>
     <pre id="m2-solution" hidden><code class="language-sql">SELECT
     c.customer_state,
@@ -630,8 +630,8 @@ LIMIT 5;</code></pre>
   </section>
 
   <section>
-    <h2>Mini-Test 3 — Uber interview (Medium)</h2>
-    <div class="mini"><strong>Problem:</strong> The <code>customers</code> table maps <code>customer_id</code> to <code>customer_unique_id</code>, and each row in <code>orders</code> represents one transaction. Write a query that returns every customer’s third order in chronological order.<br><br>Order each customer’s transactions by <code>order_purchase_timestamp</code> ascending. If two timestamps are equal, sort by <code>order_id</code> ascending. Exclude customers with fewer than three orders.<br><br><strong>Output:</strong> <code>customer_unique_id</code>, <code>order_id</code>, <code>order_purchase_timestamp</code>.</div>
+    <h2>Mini-Test 3 — Customer retention milestone (Medium)</h2>
+    <div class="mini"><strong>Business question:</strong> The CRM team uses a customer’s third purchase as a repeat-purchase milestone. The <code>customers</code> table maps <code>customer_id</code> to <code>customer_unique_id</code>, and each row in <code>orders</code> represents one transaction. Return the order in which each customer reaches that milestone.<br><br>Sequence each customer’s transactions by <code>order_purchase_timestamp</code> ascending. If two timestamps are equal, sort by <code>order_id</code> ascending. Exclude customers who have not yet made three orders.<br><br><strong>Output:</strong> <code>customer_unique_id</code>, <code>order_id</code>, <code>order_purchase_timestamp</code>.</div>
     <p class="source-note"><strong>Interview source:</strong> Adapted for the Olist dataset from DataLemur’s <a href="https://datalemur.com/questions/sql-third-transaction" target="_blank" rel="noopener noreferrer">User’s Third Transaction — Uber, Medium</a>.</p>
     <div class="practice-runner" data-answer-id="m3-solution">
       <h3>Try SQL</h3>
@@ -642,8 +642,8 @@ LIMIT 5;</code></pre>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
     <div class="buttons"><button class="toggle" data-target="m3-hint">Explain</button></div>
-    <div id="m3-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“customers maps customer_id to customer_unique_id”</td><td>Join an order to its persistent customer identity before numbering transactions.</td><td><code>JOIN customers AS c ON c.customer_id = o.customer_id</code></td></tr><tr><td>“every customer’s third order”</td><td>Number each customer’s orders separately, then keep number 3.</td><td><code>ROW_NUMBER() OVER (PARTITION BY c.customer_unique_id ...)</code> + <code>WHERE order_number = 3</code></td></tr><tr><td>“chronological order”</td><td>Assign earlier purchases smaller row numbers.</td><td><code>ORDER BY o.order_purchase_timestamp</code></td></tr><tr><td>“If two timestamps are equal, sort by order_id”</td><td>Make the sequence deterministic when two timestamps match.</td><td>Add <code>o.order_id</code> after the timestamp in the window <code>ORDER BY</code>.</td></tr><tr><td>“Exclude customers with fewer than three orders”</td><td>Only customers who receive row number 3 remain.</td><td><code>WHERE order_number = 3</code></td></tr></tbody></table>
-      <div class="visual-table" aria-label="Mini-Test 3 row numbering example"><span class="head">customer A order</span><span class="head">ROW_NUMBER()</span><span>2022-01-08</span><span>1</span><span>2022-01-10</span><span>2</span><span class="keep">2022-02-05</span><span class="keep">3 — keep</span></div>
+    <div id="m3-hint" hidden class="explain"><strong>Translate the business question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Business wording</th><th>What you need to measure</th><th>SQL choice</th></tr></thead><tbody><tr><td>“third purchase ... repeat-purchase milestone”</td><td>Connect each order to the customer’s persistent identity before sequencing purchases.</td><td><code>JOIN customers AS c ON c.customer_id = o.customer_id</code></td></tr><tr><td>“the order in which each customer reaches that milestone”</td><td>Number each customer’s orders independently, then retain their third one.</td><td><code>ROW_NUMBER() OVER (PARTITION BY c.customer_unique_id ...)</code> + <code>WHERE order_number = 3</code></td></tr><tr><td>“Sequence ... by purchase timestamp”</td><td>Give earlier purchases smaller sequence numbers.</td><td><code>ORDER BY o.order_purchase_timestamp</code></td></tr><tr><td>“If two timestamps are equal, sort by order_id”</td><td>Ensure the milestone order is deterministic if purchase times match.</td><td>Add <code>o.order_id</code> after the timestamp in the window <code>ORDER BY</code>.</td></tr><tr><td>“Exclude customers who have not yet made three orders”</td><td>Only customers who reach the third-purchase milestone remain.</td><td><code>WHERE order_number = 3</code></td></tr></tbody></table>
+      <div class="visual-table" aria-label="Mini-Test 3 repeat-purchase milestone example"><span class="head">customer A purchase</span><span class="head">purchase number</span><span>2022-01-08</span><span>1</span><span>2022-01-10</span><span>2</span><span class="keep">2022-02-05</span><span class="keep">3 — milestone</span></div>
     </div>
     <pre id="m3-solution" hidden><code class="language-sql">WITH ranked_orders AS (
     SELECT
@@ -668,8 +668,8 @@ ORDER BY order_purchase_timestamp, order_id;</code></pre>
   </section>
 
   <section>
-    <h2>Mini-Test 4 — Apple interview (Simplified)</h2>
-    <div class="mini"><strong>Problem:</strong> Each row in <code>orders</code> represents one order and includes <code>order_purchase_timestamp</code>. Write a query that counts orders placed in 2018 for each calendar month.<br><br>Use the purchase timestamp to determine an order’s month. Return the months from earliest to latest.<br><br><strong>Output:</strong> <code>order_month</code>, <code>order_count</code>.</div>
+    <h2>Mini-Test 4 — Demand planning (Simplified)</h2>
+    <div class="mini"><strong>Business question:</strong> The operations team is reviewing 2018 demand to plan monthly staffing and inventory. Each row in <code>orders</code> represents one order and includes <code>order_purchase_timestamp</code>.<br><br>Count orders placed in 2018 for each calendar month, using the purchase timestamp to assign the month. Return the months from earliest to latest.<br><br><strong>Output:</strong> <code>order_month</code>, <code>order_count</code>.</div>
     <p class="source-note"><strong>Interview source:</strong> Simplified Olist monthly-performance adaptation inspired by DataLemur’s <a href="https://datalemur.com/blog/apple-sql-interview-questions" target="_blank" rel="noopener noreferrer">Apple SQL interview questions</a>. This version uses the available <code>orders</code> table.</p>
     <div class="practice-runner" data-answer-id="m4-solution">
       <h3>Try SQL</h3>
@@ -680,8 +680,8 @@ ORDER BY order_purchase_timestamp, order_id;</code></pre>
       <div class="answer-status" aria-live="polite" hidden></div>
     </div>
     <div class="buttons"><button class="toggle" data-target="m4-hint">Explain</button></div>
-    <div id="m4-hint" hidden class="explain"><strong>Break the question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Question wording</th><th>What you must answer</th><th>SQL choice</th></tr></thead><tbody><tr><td>“orders placed in 2018”</td><td>Keep only timestamps in the 2018 calendar year.</td><td><code>WHERE order_purchase_timestamp &gt;= DATE '2018-01-01' AND order_purchase_timestamp &lt; DATE '2019-01-01'</code></td></tr><tr><td>“for each calendar month”</td><td>Convert each purchase timestamp to its month and make one group per month.</td><td><code>DATE_TRUNC('month', ...)</code> + <code>GROUP BY order_month</code></td></tr><tr><td>“counts orders”</td><td>Count order rows inside each month.</td><td><code>COUNT(*) AS order_count</code></td></tr><tr><td>“earliest to latest”</td><td>Sort months from old to new.</td><td><code>ORDER BY order_month</code></td></tr><tr><td>“Output: order_month, order_count”</td><td>Return the month label and its count.</td><td>List both fields in <code>SELECT</code>.</td></tr></tbody></table>
-      <div class="visual-hint" aria-label="Mini-Test 4 monthly count plan"><div class="visual-card"><strong>orders</strong>2018-03-04<br>2018-03-19<br>2018-04-02</div><div class="visual-arrow">→</div><div class="visual-card"><strong>DATE_TRUNC</strong>2018-03<br>2018-03<br>2018-04</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT</strong>2018-03 → 2<br>2018-04 → 1</div></div>
+    <div id="m4-hint" hidden class="explain"><strong>Translate the business question into requirements:</strong><table class="task-breakdown"><thead><tr><th>Business wording</th><th>What you need to measure</th><th>SQL choice</th></tr></thead><tbody><tr><td>“reviewing 2018 demand”</td><td>Keep only orders placed during the 2018 planning period.</td><td><code>WHERE order_purchase_timestamp &gt;= DATE '2018-01-01' AND order_purchase_timestamp &lt; DATE '2019-01-01'</code></td></tr><tr><td>“plan monthly staffing and inventory”</td><td>Turn each purchase timestamp into a month, so there is one demand total per month.</td><td><code>DATE_TRUNC('month', ...)</code> + <code>GROUP BY order_month</code></td></tr><tr><td>“Count orders”</td><td>Use the number of order rows as the monthly demand volume.</td><td><code>COUNT(*) AS order_count</code></td></tr><tr><td>“earliest to latest”</td><td>Show the demand trend in calendar order.</td><td><code>ORDER BY order_month</code></td></tr><tr><td>“Output: order_month, order_count”</td><td>Return the planning month and its order volume.</td><td>List both fields in <code>SELECT</code>.</td></tr></tbody></table>
+      <div class="visual-hint" aria-label="Mini-Test 4 demand-planning plan"><div class="visual-card"><strong>orders</strong>2018-03-04<br>2018-03-19<br>2018-04-02</div><div class="visual-arrow">→</div><div class="visual-card"><strong>DATE_TRUNC</strong>Monthly demand period<br>2018-03 / 2018-04</div><div class="visual-arrow">→</div><div class="visual-card"><strong>COUNT</strong>2018-03 → 2 orders<br>2018-04 → 1 order</div></div>
     </div>
     <pre id="m4-solution" hidden><code class="language-sql">SELECT
     DATE_TRUNC('month', order_purchase_timestamp)::date AS order_month,
